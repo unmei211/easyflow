@@ -1,0 +1,13 @@
+services:
+  postgres:
+    image: postgres:16
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: easyflow
+      POSTGRES_PASSWORD: easyflow
+      POSTGRES_DB: easyflow
+    volumes:
+      - easyflow-database:/var/lib/postgresql/data
+volumes:
+  easyflow-database:
