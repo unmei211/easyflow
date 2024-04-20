@@ -1,0 +1,20 @@
+server:
+  port: 8090
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/easyflow
+    username: easyflow
+    password: easyflow
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    locations: classpath:migrations
+    url: jdbc:postgresql://localhost:5432/easyflow
+    user: easyflow
+    password: easyflow
+jwt:
+  issuer: 'unmei.vs@gmail.com'
+  signingKey: 'very_secret_key'
+  aTokenDuration: 30
+  rTokenDuration: 168
+
+
