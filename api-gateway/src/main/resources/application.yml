@@ -1,0 +1,33 @@
+server:
+  port: 8095
+  forward-headers-strategy: framework
+spring:
+  main:
+    web-application-type: reactive
+  cloud:
+    gateway:
+      routes:
+        - id: easyflow-route
+          uri: http://127.0.0.1:8100
+          predicates:
+            - Path=/user/**
+          filters:
+            - name: Authority
+              args:
+                access: USER
+  datasource:
+    url: jdbc:postgresql://localhost:5432/easyflow
+    username: easyflow
+    password: easyflow
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    generate-ddl: off
+    database: postgresql
+    hibernate:
+      ddl-auto: validate
+jwt:
+  issuer: 'pavel.lazarenko@7bits.it'
+  signingKey: 'talspoc120nxjsapqke1d77'
+  aTokenDuration: 30
+  rTokenDuration: 168
+
