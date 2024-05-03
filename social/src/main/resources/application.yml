@@ -1,0 +1,33 @@
+server:
+  port: 8100
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/easyflow
+    username: easyflow
+    password: easyflow
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    generate-ddl: off
+    database: postgresql
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    locations: classpath:migrations
+    url: jdbc:postgresql://localhost:5432/easyflow
+    user: easyflow
+    password: easyflow
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    enabled: true
+  cloud:
+    openfeign:
+      client:
+        config:
+          authClient:
+            url: "${easyflow.ecosystem.auth-service.url}"
+
+
+easyflow:
+  ecosystem:
+    auth-service:
+      url: http://127.0.0.1:8095
