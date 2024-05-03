@@ -6,8 +6,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @EnableFeignClients
 @SpringBootApplication
-class Easyflow {
+class SocialService {
     public static void main(String[] args) {
-        SpringApplication.run(Easyflow.class, args);
+        SpringApplication.run(SocialService.class, args);
     }
 }

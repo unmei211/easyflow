@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>social</artifactId>
+    <artifactId>social-service</artifactId>
     <packaging>jar</packaging>
 
 

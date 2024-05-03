@@ -85,6 +85,6 @@
 
     <modules>
         <module>api-gateway</module>
-        <module>social</module>
+        <module>social-service</module>
     </modules>
 </project>

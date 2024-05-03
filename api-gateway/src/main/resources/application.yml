@@ -7,7 +7,7 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: easyflow-route
+        - id: social-service
           uri: http://127.0.0.1:8100
           predicates:
             - Path=/user/**
