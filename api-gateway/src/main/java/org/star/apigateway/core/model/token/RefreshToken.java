@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.star.apigateway.core.model.user.User;
+import org.star.apigateway.core.model.user.UserAuth;
 
 @Entity
 @AllArgsConstructor
@@ -20,7 +20,7 @@ public class RefreshToken {
 
     @OneToOne
     @JoinColumn(unique = true, nullable = false)
-    private User user;
+    private UserAuth user;
 
     @Column(unique = true, name = "refresh_token")
     private String token;

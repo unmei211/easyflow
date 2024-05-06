@@ -1,5 +1,5 @@
 server:
-  port: 8095
+  port: "${easyflow.ecosystem.auth-service.port}"
   forward-headers-strategy: framework
 spring:
   main:
@@ -8,13 +8,24 @@ spring:
     gateway:
       routes:
         - id: social-service
-          uri: http://127.0.0.1:8100
+          uri: "${easyflow.ecosystem.social-service.url}"
           predicates:
             - Path=/user/**
           filters:
             - name: Authority
               args:
                 access: USER
+    openfeign:
+      client:
+        config:
+          socialClient:
+            url: "${easyflow.ecosystem.social-service.url}"
+          userClient:
+            url: "${easyflow.ecosystem.user-service.url}"
+          authClient:
+            url: "${easyflow.ecosystem.auth-service.url}"
+
+
   datasource:
     url: jdbc:postgresql://localhost:5432/easyflow
     username: easyflow
@@ -31,3 +42,17 @@ jwt:
   aTokenDuration: 30
   rTokenDuration: 168
 
+easyflow:
+  ecosystem:
+    auth-service:
+      url: http://127.0.0.1:8095
+      domain: 127.0.0.1
+      port: 8095
+    social-service:
+      url: http://127.0.0.1:8100
+      domain: 127.0.0.1
+      port: 8100
+    user-service:
+      url: http://127.0.0.1:8105
+      domain: 127.0.0.1
+      port: 8105

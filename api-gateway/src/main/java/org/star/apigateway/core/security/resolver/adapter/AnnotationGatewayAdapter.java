@@ -1,8 +1,8 @@
 package org.star.apigateway.core.security.resolver.adapter;
 
+import org.star.apigateway.core.gateway.AuthorityGatewayFilterFactory;
 import org.star.apigateway.core.model.roles.RolesEnum;
 import org.star.apigateway.core.security.resolver.AuthRoleRequired;
-import org.star.apigateway.web.filter.gateway.AuthorityGatewayFilterFactory;
 
 import java.util.Arrays;
 import java.util.List;

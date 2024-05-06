@@ -7,13 +7,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.star.apigateway.core.gateway.AuthorityGatewayFilterFactory;
 import org.star.apigateway.core.model.roles.RolesEnum;
-import org.star.apigateway.core.security.gateway.GatewayInterceptor;
+import org.star.apigateway.core.gateway.GatewayInterceptor;
 import org.star.apigateway.core.security.user.UserCredentials;
 import org.star.apigateway.core.service.auth.AuthService;
+import org.star.apigateway.core.service.auth.DataAuthService;
 import org.star.apigateway.core.service.security.JwtService;
 import org.star.apigateway.web.exception.security.UnauthorizedException;
-import org.star.apigateway.web.filter.gateway.AuthorityGatewayFilterFactory;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ import java.util.List;
 @Slf4j
 public class ReactiveJwtInterceptor implements GatewayInterceptor {
     private final JwtService jwtService;
-    private final AuthService authService;
+    private final DataAuthService dataAuthService;
 
     @Override
     public boolean preHandle(
@@ -53,7 +54,7 @@ public class ReactiveJwtInterceptor implements GatewayInterceptor {
                     throw new UnauthorizedException("Not found authorization header but required");
                 }
 
-                if (!authService.findById(userCredentials.getUserId()).getEnabled()) {
+                if (!dataAuthService.findById(userCredentials.getUserId()).getEnabled().getEnabled()) {
                     throw new UnauthorizedException("User blocked");
                 }
 

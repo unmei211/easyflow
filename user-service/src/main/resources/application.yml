@@ -1,0 +1,37 @@
+server:
+  port: ${easyflow.ecosystem.user-service.port}
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/easyflow
+    username: easyflow
+    password: easyflow
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    generate-ddl: off
+    database: postgresql
+    hibernate:
+      ddl-auto: validate
+  cloud:
+    openfeign:
+      client:
+        config:
+          authClient:
+            url: "${easyflow.ecosystem.auth-service.url}"
+  main:
+    web-application-type: servlet
+
+
+easyflow:
+  ecosystem:
+    auth-service:
+      url: http://127.0.0.1:8095
+      domain: 127.0.0.1
+      port: 8095
+    social-service:
+      url: http://127.0.0.1:8100
+      domain: 127.0.0.1
+      port: 8100
+    user-service:
+      url: http://127.0.0.1:8105
+      domain: 127.0.0.1
+      port: 8105
