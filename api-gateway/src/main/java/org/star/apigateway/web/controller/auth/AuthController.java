@@ -17,6 +17,7 @@ import org.star.apigateway.web.model.auth.Login;
 import org.star.apigateway.web.model.auth.Registration;
 import org.star.apigateway.web.model.jwt.TokensBundle;
 import org.star.apigateway.web.model.user.UserAuthPublic;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/auth")
@@ -28,17 +29,18 @@ public class AuthController {
     private final ReactiveJwtInterceptor reactiveJwtInterceptor;
 
     @PostMapping
-    public ResponseEntity<?> register(
+    public Mono<ResponseEntity<?>> register(
             final @RequestBody Registration registration
     ) {
         System.out.println(registration.getLogin());
-
-        authService.register(
+        Mono<Void> result = authService.register(
                 registration.getLogin(),
                 registration.getEmail(),
                 registration.getPassword()
         );
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return result.then(Mono.defer(() -> Mono.just(ResponseEntity.status(HttpStatus.CREATED).build())));
+//                .map(data -> ResponseEntity.status(HttpStatus.CREATED).build());
+//        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PostMapping("/login")

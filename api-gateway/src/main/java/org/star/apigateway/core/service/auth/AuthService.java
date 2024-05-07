@@ -9,6 +9,7 @@ import org.star.apigateway.core.repository.role.RoleRepository;
 import org.star.apigateway.core.repository.user.UserAuthRepository;
 import org.star.apigateway.core.security.encrypt.BCryptPasswordEncoder;
 import org.star.apigateway.core.service.security.JwtService;
+import org.star.apigateway.microservice.share.error.exceptions.core.NotFoundException;
 import org.star.apigateway.microservice.share.error.exceptions.core.ServiceUnavailable;
 import org.star.apigateway.microservice.share.error.exceptions.security.ForbiddenException;
 import org.star.apigateway.microservice.share.error.exceptions.security.UnauthorizedException;
@@ -17,6 +18,7 @@ import org.star.apigateway.microservice.service.user.feignclient.UserServiceFeig
 import org.star.apigateway.microservice.service.user.model.user.UserToSaveTransfer;
 import org.star.apigateway.microservice.service.user.webclient.UserServiceWebClient;
 import org.star.apigateway.web.model.jwt.TokensBundle;
+import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
@@ -31,7 +33,7 @@ public class AuthService {
     private final UserServiceFeignClient userService;
     private final UserServiceWebClient userServiceAsync;
 
-    public void register(
+    public Mono<Void> register(
             final String login,
             final String email,
             final String password
@@ -41,13 +43,16 @@ public class AuthService {
 //                () -> new ServiceUnavailable("Service unavailable")
 //        );
 
-        userServiceAsync.saveUserAsync(new UserToSaveTransfer(login, email))
-                .subscribe(
-                        userViaId -> log.info("get user" + userViaId.getUserId()),
-                        exception -> {
-                            ер
-                        }
-                );
+        return userServiceAsync.saveUserAsync(new UserToSaveTransfer(login, email)).then();
+//                .doOnError(ForbiddenException.class, ex -> {
+//                    throw ex;
+//                })
+//                .subscribe(
+//                        userViaId -> log.info("get user" + userViaId.getUserId()),
+//                        error -> {
+//                            throw new NotFoundException("not found");
+//                        }
+//                );
 
 //        final String hashPassword = encoder.encrypt(password);
 //        Role role = roleRepository.findByRole(RolesEnum.USER.toString()).orElseThrow(

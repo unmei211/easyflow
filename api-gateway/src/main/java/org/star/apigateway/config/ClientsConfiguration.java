@@ -5,12 +5,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.star.apigateway.microservice.service.user.webclient.UserServiceWebClient;
 import org.star.apigateway.microservice.share.error.exceptions.core.ConflictException;
 import org.star.apigateway.microservice.share.error.exceptions.security.ForbiddenException;
 import org.star.apigateway.microservice.share.error.exceptions.security.UnauthorizedException;
 import org.star.apigateway.microservice.share.error.handlers.ErrorsAssociate;
 import org.star.apigateway.microservice.share.error.handlers.feign.FeignErrorDecoder;
-import org.star.apigateway.microservice.share.error.handlers.webclient.WebClientErrorHandlerFilter;
 
 @Configuration
 @RequiredArgsConstructor
@@ -29,9 +29,4 @@ public class ClientsConfiguration {
     public ErrorDecoder errorDecoder() {
         return new FeignErrorDecoder(errorsAssociate());
     }
-
-//    @Bean
-//    public WebClientErrorHandlerFilter webClientErrorHandlerFilter () {
-//        return new WebClientErrorHandlerFilter(errorsAssociate());
-//    }
 }

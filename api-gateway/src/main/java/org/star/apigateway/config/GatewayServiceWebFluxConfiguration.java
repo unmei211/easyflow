@@ -27,4 +27,6 @@ public class GatewayServiceWebFluxConfiguration implements WebFluxConfigurer {
         configurer.addCustomResolver(new UserCredentialsReactiveResolver(mapper, interceptor));
     }
 
+
+
 }

@@ -38,6 +38,9 @@ public class ErrorsAssociate {
         }
 
         try {
+            System.out.println("check");
+            T t = (T) errorsMap.get(status).getDeclaredConstructor(String.class).newInstance("");
+            System.out.println(t + " check");
             return (T) errorsMap.get(status).getDeclaredConstructor(String.class).newInstance("");
         } catch (Exception e) {
             throw new InternalServerError("Service unavailable");
@@ -77,13 +80,6 @@ public class ErrorsAssociate {
         errorsMap.put(status.value(), exception);
     }
 
-    private Class<? extends RuntimeException> preGet(Integer status) {
-        if (containsKey(status)) {
-            return get(status);
-        } else {
-            return
-        }
-    }
 
     public <T extends RuntimeException> T getInit(Integer status) {
         return letInit(status);
