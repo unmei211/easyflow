@@ -14,13 +14,11 @@ import org.springframework.web.server.ServerWebExchange;
 import org.star.apigateway.core.security.jwt.ReactiveJwtInterceptor;
 import org.star.apigateway.core.security.resolver.adapter.AnnotationGatewayAdapter;
 import org.star.apigateway.core.security.user.UserCredentials;
-import org.star.apigateway.web.exception.security.ForbiddenException;
-import org.star.apigateway.web.exception.security.UnauthorizedException;
+import org.star.apigateway.microservice.share.error.exceptions.security.ForbiddenException;
+import org.star.apigateway.microservice.share.error.exceptions.security.UnauthorizedException;
 import reactor.core.publisher.Mono;
 
-import javax.management.Attribute;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Objects;
 
 @Slf4j

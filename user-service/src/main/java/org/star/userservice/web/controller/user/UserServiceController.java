@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.star.apigateway.microservice.share.user.UserViaId;
-import org.star.apigateway.microservice.user.api.model.user.UserToSaveTransfer;
+import org.star.apigateway.microservice.share.model.user.UserViaId;
+import org.star.apigateway.microservice.service.user.model.user.UserToSaveTransfer;
 import org.star.userservice.core.services.user.UserService;
 
 @RestController

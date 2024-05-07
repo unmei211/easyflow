@@ -11,8 +11,8 @@ import org.star.apigateway.core.security.resolver.AuthRoleRequired;
 import org.star.apigateway.core.security.user.UserCredentials;
 import org.star.apigateway.core.service.auth.AuthService;
 import org.star.apigateway.core.service.auth.DataAuthService;
-import org.star.apigateway.microservice.user.api.feignclient.UserServiceFeignClient;
-import org.star.apigateway.web.exception.security.UnauthorizedException;
+import org.star.apigateway.microservice.service.user.feignclient.UserServiceFeignClient;
+import org.star.apigateway.microservice.share.error.exceptions.security.UnauthorizedException;
 import org.star.apigateway.web.model.auth.Login;
 import org.star.apigateway.web.model.auth.Registration;
 import org.star.apigateway.web.model.jwt.TokensBundle;
@@ -63,11 +63,5 @@ public class AuthController {
         UserAuth user = dataAuthService.findById(userCredentials.getUserId());
 
         return new ResponseEntity<>(UserAuthPublic.build(user), HttpStatus.OK);
-    }
-
-    @GetMapping("/beba")
-    public ResponseEntity<?> beba() {
-        feignClient.beba();
-        return new ResponseEntity<>("t", HttpStatus.OK);
     }
 }

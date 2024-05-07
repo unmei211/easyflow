@@ -2,11 +2,11 @@ package org.star.userservice.core.services.user;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.star.apigateway.microservice.share.user.UserViaId;
-import org.star.socialservice.web.exception.core.NotFoundException;
+import org.star.apigateway.microservice.share.error.exceptions.core.NotFoundException;
+import org.star.apigateway.microservice.share.error.exceptions.security.ForbiddenException;
+import org.star.apigateway.microservice.share.model.user.UserViaId;
 import org.star.userservice.core.models.user.UserUService;
 import org.star.userservice.core.repository.user.UserServiceRepository;
-import org.star.userservice.web.exception.security.ForbiddenException;
 
 @Service
 @AllArgsConstructor

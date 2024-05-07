@@ -9,8 +9,8 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import org.star.apigateway.microservice.share.error.exceptions.security.UnauthorizedException;
 import org.star.socialservice.web.model.user.UserCredentials;
-import org.star.userservice.web.exception.security.UnauthorizedException;
 
 @Slf4j
 @AllArgsConstructor

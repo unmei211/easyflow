@@ -4,22 +4,18 @@ import feign.FeignException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.star.apigateway.core.model.password.Password;
-import org.star.apigateway.core.model.roles.Role;
-import org.star.apigateway.core.model.roles.RolesEnum;
 import org.star.apigateway.core.model.user.UserAuth;
 import org.star.apigateway.core.repository.role.RoleRepository;
 import org.star.apigateway.core.repository.user.UserAuthRepository;
 import org.star.apigateway.core.security.encrypt.BCryptPasswordEncoder;
 import org.star.apigateway.core.service.security.JwtService;
-import org.star.apigateway.microservice.share.user.UserViaId;
-import org.star.apigateway.microservice.user.api.feignclient.UserServiceFeignClient;
-import org.star.apigateway.microservice.user.api.model.user.UserToSaveTransfer;
-import org.star.apigateway.microservice.user.api.webclient.UserServiceWebClient;
-import org.star.apigateway.web.exception.core.NotFoundException;
-import org.star.apigateway.web.exception.core.ServiceUnavailable;
-import org.star.apigateway.web.exception.security.ForbiddenException;
-import org.star.apigateway.web.exception.security.UnauthorizedException;
+import org.star.apigateway.microservice.share.error.exceptions.core.ServiceUnavailable;
+import org.star.apigateway.microservice.share.error.exceptions.security.ForbiddenException;
+import org.star.apigateway.microservice.share.error.exceptions.security.UnauthorizedException;
+import org.star.apigateway.microservice.share.model.user.UserViaId;
+import org.star.apigateway.microservice.service.user.feignclient.UserServiceFeignClient;
+import org.star.apigateway.microservice.service.user.model.user.UserToSaveTransfer;
+import org.star.apigateway.microservice.service.user.webclient.UserServiceWebClient;
 import org.star.apigateway.web.model.jwt.TokensBundle;
 
 import java.util.Optional;
@@ -46,7 +42,12 @@ public class AuthService {
 //        );
 
         userServiceAsync.saveUserAsync(new UserToSaveTransfer(login, email))
-                .subscribe(userViaId -> log.info("get user" + userViaId.getUserId()));
+                .subscribe(
+                        userViaId -> log.info("get user" + userViaId.getUserId()),
+                        exception -> {
+                            ер
+                        }
+                );
 
 //        final String hashPassword = encoder.encrypt(password);
 //        Role role = roleRepository.findByRole(RolesEnum.USER.toString()).orElseThrow(

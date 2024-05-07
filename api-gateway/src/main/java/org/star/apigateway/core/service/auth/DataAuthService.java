@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.star.apigateway.core.model.user.UserAuth;
 import org.star.apigateway.core.repository.user.UserAuthRepository;
-import org.star.apigateway.web.exception.core.NotFoundException;
+import org.star.apigateway.microservice.share.error.exceptions.core.NotFoundException;
 
 import java.util.List;
 
