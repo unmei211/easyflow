@@ -30,18 +30,41 @@ public class ErrorsAssociate {
 
     @SuppressWarnings("unchecked")
     private <T extends RuntimeException> T letInit(Integer status) {
-
-        Class<? extends RuntimeException> exceptionClass;
-
         if (!errorsMap.containsKey(status)) {
             return (T) new InternalServerError("Can't map");
         }
 
         try {
-            System.out.println("check");
             T t = (T) errorsMap.get(status).getDeclaredConstructor(String.class).newInstance("");
-            System.out.println(t + " check");
             return (T) errorsMap.get(status).getDeclaredConstructor(String.class).newInstance("");
+        } catch (Exception e) {
+            throw new InternalServerError("Service unavailable");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends RuntimeException, R extends HttpStatusCode> T letInit(String message, R status) {
+        if (!errorsMap.containsKey(status.value())) {
+            return (T) new InternalServerError("Can't map");
+        }
+
+        try {
+            T t = (T) errorsMap.get(status.value()).getDeclaredConstructor(String.class).newInstance(message);
+            return (T) errorsMap.get(status.value()).getDeclaredConstructor(String.class).newInstance(message);
+        } catch (Exception e) {
+            throw new InternalServerError("Service unavailable");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends RuntimeException> T letInit(String message, Integer status) {
+        if (!errorsMap.containsKey(status)) {
+            return (T) new InternalServerError("Can't map");
+        }
+
+        try {
+            T t = (T) errorsMap.get(status).getDeclaredConstructor(String.class).newInstance(message);
+            return (T) errorsMap.get(status).getDeclaredConstructor(String.class).newInstance(message);
         } catch (Exception e) {
             throw new InternalServerError("Service unavailable");
         }
@@ -87,5 +110,13 @@ public class ErrorsAssociate {
 
     public <T extends RuntimeException, U extends HttpStatusCode> T getInit(U status) {
         return letInit(status.value());
+    }
+
+    public <T extends RuntimeException> T getInit(String message, Integer status) {
+        return letInit(message, status);
+    }
+
+    public <T extends RuntimeException, U extends HttpStatusCode> T getInit(String message, U status) {
+        return letInit(message, status.value());
     }
 }

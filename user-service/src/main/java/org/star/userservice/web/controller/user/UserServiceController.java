@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.star.apigateway.microservice.share.model.user.UserViaId;
 import org.star.apigateway.microservice.service.user.model.user.UserToSaveTransfer;
+import org.star.apigateway.microservice.share.model.user.UserViaInfo;
+import org.star.userservice.core.models.user.UserUService;
 import org.star.userservice.core.services.user.UserService;
 
 @RestController
@@ -17,14 +19,20 @@ import org.star.userservice.core.services.user.UserService;
 public class UserServiceController {
     private final UserService userService;
 
-    @PostMapping("/save")
+    @PostMapping("/create")
     public ResponseEntity<UserViaId> saveUser(@RequestBody UserToSaveTransfer userToSave) {
         System.out.println(userToSave.getEmail() + " bebebebe");
         return new ResponseEntity<>(new UserViaId(userService.saveUser(userToSave.getEmail(), userToSave.getLogin()).getId()), HttpStatus.CREATED);
     }
 
     @GetMapping("/{login}")
-    public ResponseEntity<UserViaId> findUserByLogin(@NotNull @PathVariable("login") String login) {
-        return new ResponseEntity<>(new UserViaId(userService.findUserByLogin(login).getId()), HttpStatus.OK);
+    public ResponseEntity<UserViaInfo> findUserByLogin(@NotNull @PathVariable("login") String login) {
+        UserUService userFromService = userService.findUserByLogin(login);
+        UserViaInfo user = UserViaInfo.builder()
+                .id(userFromService.getId())
+                .login(userFromService.getLogin())
+                .email(userFromService.getEmail())
+                .build();
+        return ResponseEntity.ok(user);
     }
 }

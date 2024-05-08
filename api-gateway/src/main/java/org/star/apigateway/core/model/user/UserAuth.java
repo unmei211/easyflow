@@ -26,7 +26,7 @@ public class UserAuth {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Password password;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private RefreshToken refreshToken;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
@@ -57,6 +57,7 @@ public class UserAuth {
     }
 
     public Boolean isEnabled() {
+        System.out.println(getEnabled() + " bebebe");
         return getEnabled().getEnabled();
     }
 }

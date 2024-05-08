@@ -3,7 +3,13 @@ package org.star.apigateway.core.service.auth;
 import feign.FeignException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.star.apigateway.core.model.enabled.UserEnabled;
+import org.star.apigateway.core.model.password.Password;
+import org.star.apigateway.core.model.roles.Role;
+import org.star.apigateway.core.model.roles.RolesEnum;
 import org.star.apigateway.core.model.user.UserAuth;
 import org.star.apigateway.core.repository.role.RoleRepository;
 import org.star.apigateway.core.repository.user.UserAuthRepository;
@@ -13,6 +19,7 @@ import org.star.apigateway.microservice.share.error.exceptions.core.NotFoundExce
 import org.star.apigateway.microservice.share.error.exceptions.core.ServiceUnavailable;
 import org.star.apigateway.microservice.share.error.exceptions.security.ForbiddenException;
 import org.star.apigateway.microservice.share.error.exceptions.security.UnauthorizedException;
+import org.star.apigateway.microservice.share.error.handlers.ErrorsAssociate;
 import org.star.apigateway.microservice.share.model.user.UserViaId;
 import org.star.apigateway.microservice.service.user.feignclient.UserServiceFeignClient;
 import org.star.apigateway.microservice.service.user.model.user.UserToSaveTransfer;
@@ -20,6 +27,7 @@ import org.star.apigateway.microservice.service.user.webclient.UserServiceWebCli
 import org.star.apigateway.web.model.jwt.TokensBundle;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,74 +39,109 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
     private final UserServiceFeignClient userService;
-    private final UserServiceWebClient userServiceAsync;
+    private final UserServiceWebClient userServiceAsyncClient;
+    private final ErrorsAssociate associate;
 
-    public Mono<Void> register(
+    private static void logServiceLayerProcessed(
+            final Class<? extends RuntimeException> exceptionClazz,
+            final Class<?> serviceClazz
+    ) {
+        log.info(
+                "The error: [{}]\thas been processed in the service: [{}]",
+                exceptionClazz.getSimpleName(),
+                serviceClazz.getSimpleName()
+        );
+    }
+
+    public Mono<UserViaId> register(
             final String login,
             final String email,
             final String password
     ) {
-        System.out.println("BEBEBEBEBE");
-//        UserViaId userViaId = Optional.of(userService.saveUser(new UserToSaveTransfer(login, email))).orElseThrow(
-//                () -> new ServiceUnavailable("Service unavailable")
-//        );
+        return userServiceAsyncClient.saveUserAsync(new UserToSaveTransfer(login, email))
+                .map(userViaId -> {
+                    final String hashPassword = encoder.encrypt(password);
 
-        return userServiceAsync.saveUserAsync(new UserToSaveTransfer(login, email)).then();
-//                .doOnError(ForbiddenException.class, ex -> {
-//                    throw ex;
-//                })
-//                .subscribe(
-//                        userViaId -> log.info("get user" + userViaId.getUserId()),
-//                        error -> {
-//                            throw new NotFoundException("not found");
-//                        }
-//                );
+                    Role role = roleRepository.findByRole(RolesEnum.USER.toString()).orElseThrow(
+                            () -> new NotFoundException("Not found role")
+                    );
 
-//        final String hashPassword = encoder.encrypt(password);
-//        Role role = roleRepository.findByRole(RolesEnum.USER.toString()).orElseThrow(
-//                () -> new NotFoundException("role with provided name not found")
-//        );
-//        UserAuth user = new UserAuth(userViaId.getUserId());
-//        user.getRoles().add(role);
-//        user.setPassword(new Password(hashPassword, user));
-//        log.info("save user {}", user.getId());
-//        userRepository.save(user);
+                    UserAuth newUserAuth = new UserAuth();
+                    newUserAuth.setId(userViaId.getUserId());
+                    newUserAuth.setRoles(List.of(role));
+                    newUserAuth.setEnabled(new UserEnabled(newUserAuth));
+                    newUserAuth.setPassword(new Password(hashPassword, newUserAuth));
+                    userRepository.save(newUserAuth);
+                    return userViaId;
+                })
+                .onErrorMap(ForbiddenException.class, error -> {
+                    logServiceLayerProcessed(ForbiddenException.class, AuthService.class);
+                    return error;
+//                    return associate.getInit("FORBIDDEN", HttpStatus.FORBIDDEN);
+                });
     }
 
-    public TokensBundle login(
+    public Mono<TokensBundle> login(
             final String login,
             final String password
     ) {
-        log.info("login user");
-        UserAuth userAuth;
-        try {
-            UserViaId userViaId = null;
-            Optional.of(userService.findUserByLogin(login)).orElseThrow(
-                    () -> new ServiceUnavailable("Service unavailable")
-            );
-            userAuth = userRepository.findById(userViaId.getUserId()).orElseThrow(
-                    () -> new ForbiddenException("User not found")
-            );
-        } catch (FeignException e) {
-            throw new ServiceUnavailable("Service unavailable");
-        }
+        return userServiceAsyncClient.findUserByLoginAsync(login)
+                .flatMap(userViaInfo -> {
+                    System.out.println("id" + userViaInfo.getId());
+                    Optional<UserAuth> user = userRepository.findById(userViaInfo.getId());
+                    if (user.isEmpty()) {
+                        return Mono.error(new NotFoundException("User not found"));
+                    }
+                    if (!user.get().isEnabled()) {
+                        return Mono.error(new ForbiddenException("User not enabled"));
+                    }
 
-        System.out.println(userAuth.getRoles());
-        if (!userAuth.isEnabled()) {
-            throw new ForbiddenException("user with login: " + login + " ban");
-        }
+                    if (!encoder.matches(password, user.get().getPassword().getValue())) {
+                        return Mono.error(new ForbiddenException("Password not matches"));
+                    }
 
-        if (!encoder.matches(password, userAuth.getPassword().getValue())) {
-            throw new UnauthorizedException("pass not matches");
-        }
 
-        TokensBundle bundle = new TokensBundle();
-        String accessToken = jwtService.createAccessToken(userAuth);
-        log.info("try bundle token access");
-        bundle.setAccessToken(jwtService.createAccessToken(userAuth));
-        log.info("bundled token access");
-        bundle.setRefreshToken(jwtService.upsertRefreshToken(userAuth));
+                    TokensBundle bundle = new TokensBundle();
+                    String accessToken = jwtService.createAccessToken(user.get());
+                    log.info("try bundle token access");
+                    bundle.setAccessToken(jwtService.createAccessToken(user.get()));
+                    log.info("bundled token access");
+                    bundle.setRefreshToken(jwtService.upsertRefreshToken(user.get()));
 
-        return bundle;
+                    return Mono.just(bundle);
+                });
+//
+//
+//        log.info("login user");
+//        UserAuth userAuth;
+//        try {
+//            UserViaId userViaId = null;
+//            Optional.of(userService.findUserByLogin(login)).orElseThrow(
+//                    () -> new ServiceUnavailable("Service unavailable")
+//            );
+//            userAuth = userRepository.findById(userViaId.getUserId()).orElseThrow(
+//                    () -> new ForbiddenException("User not found")
+//            );
+//        } catch (FeignException e) {
+//            throw new ServiceUnavailable("Service unavailable");
+//        }
+//
+//        System.out.println(userAuth.getRoles());
+//        if (!userAuth.isEnabled()) {
+//            throw new ForbiddenException("user with login: " + login + " ban");
+//        }
+//
+//        if (!encoder.matches(password, userAuth.getPassword().getValue())) {
+//            throw new UnauthorizedException("pass not matches");
+//        }
+//
+//        TokensBundle bundle = new TokensBundle();
+//        String accessToken = jwtService.createAccessToken(userAuth);
+//        log.info("try bundle token access");
+//        bundle.setAccessToken(jwtService.createAccessToken(userAuth));
+//        log.info("bundled token access");
+//        bundle.setRefreshToken(jwtService.upsertRefreshToken(userAuth));
+//
+//        return bundle;
     }
 }

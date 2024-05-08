@@ -25,4 +25,9 @@ public class UserEnabled {
     @OneToOne
     @JoinColumn(unique = true, nullable = false, name = "user_id")
     private UserAuth user;
+
+    public UserEnabled(final UserAuth user) {
+        this.enabled = true;
+        this.user = user;
+    }
 }

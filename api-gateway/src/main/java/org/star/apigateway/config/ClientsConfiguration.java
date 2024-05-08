@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.star.apigateway.microservice.service.user.webclient.UserServiceWebClient;
 import org.star.apigateway.microservice.share.error.exceptions.core.ConflictException;
+import org.star.apigateway.microservice.share.error.exceptions.core.NotFoundException;
 import org.star.apigateway.microservice.share.error.exceptions.security.ForbiddenException;
 import org.star.apigateway.microservice.share.error.exceptions.security.UnauthorizedException;
 import org.star.apigateway.microservice.share.error.handlers.ErrorsAssociate;
@@ -21,6 +22,7 @@ public class ClientsConfiguration {
         errorsAssociate.mapError(HttpStatus.CONFLICT.value(), ConflictException.class);
         errorsAssociate.mapError(HttpStatus.FORBIDDEN.value(), ForbiddenException.class);
         errorsAssociate.mapError(HttpStatus.UNAUTHORIZED.value(), UnauthorizedException.class);
+        errorsAssociate.mapError(HttpStatus.NOT_FOUND.value(), NotFoundException.class);
 
         return errorsAssociate;
     }
