@@ -9,6 +9,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class UserUService {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -19,8 +20,6 @@ public class UserUService {
 
     @Column(unique = true, nullable = false)
     private String email;
-
-
 
     public UserUService(
             final String login,

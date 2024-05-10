@@ -15,7 +15,7 @@ public class UserAuthPublic {
     public UserAuthPublic(final UserAuth user) {
         this.roles = user.getPresentRoles();
         this.id = user.getId();
-        this.enabled = user.getEnabled().getEnabled();
+        this.enabled = user.getEnabled();
     }
 
     public static UserAuthPublic build(

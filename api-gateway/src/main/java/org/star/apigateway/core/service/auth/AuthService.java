@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.star.apigateway.core.model.enabled.UserEnabled;
 import org.star.apigateway.core.model.password.Password;
 import org.star.apigateway.core.model.roles.Role;
 import org.star.apigateway.core.model.roles.RolesEnum;
@@ -53,51 +52,74 @@ public class AuthService {
         );
     }
 
-    public Mono<UserViaId> register(
+    public Mono<ResponseEntity<UserViaId>> register(
             final String login,
             final String email,
             final String password
     ) {
-        return userServiceAsyncClient.saveUserAsync(new UserToSaveTransfer(login, email))
+        return userServiceAsyncClient.saveUser(new UserToSaveTransfer(login, email))
+                .onErrorMap(ForbiddenException.class, e -> {
+                    logServiceLayerProcessed(e.getClass(), this.getClass());
+                    return new ForbiddenException("Error in userServiceAsync");
+                })
                 .map(userViaId -> {
+                    log.info("Id to save {}", userViaId.getUserId());
+
+                    if (userRepository.findById(userViaId.getUserId()).isPresent()) {
+                        log.info("User via id exist {}", userViaId.getUserId());
+                        throw new ForbiddenException();
+                    }
+
                     final String hashPassword = encoder.encrypt(password);
 
                     Role role = roleRepository.findByRole(RolesEnum.USER.toString()).orElseThrow(
-                            () -> new NotFoundException("Not found role")
+                            () -> {
+                                log.info("Not found Role");
+                                return new NotFoundException("Not found role");
+                            }
                     );
 
                     UserAuth newUserAuth = new UserAuth();
                     newUserAuth.setId(userViaId.getUserId());
                     newUserAuth.setRoles(List.of(role));
-                    newUserAuth.setEnabled(new UserEnabled(newUserAuth));
                     newUserAuth.setPassword(new Password(hashPassword, newUserAuth));
                     userRepository.save(newUserAuth);
-                    return userViaId;
+                    return new ResponseEntity<>(userViaId, HttpStatus.CREATED);
                 })
-                .onErrorMap(ForbiddenException.class, error -> {
-                    logServiceLayerProcessed(ForbiddenException.class, AuthService.class);
-                    return error;
-//                    return associate.getInit("FORBIDDEN", HttpStatus.FORBIDDEN);
+                .onErrorMap(ForbiddenException.class, e -> {
+                    logServiceLayerProcessed(e.getClass(), this.getClass());
+                    return new ForbiddenException("User via this pass already exist");
                 });
     }
 
-    public Mono<TokensBundle> login(
+    public Mono<ResponseEntity<TokensBundle>> login(
             final String login,
             final String password
     ) {
-        return userServiceAsyncClient.findUserByLoginAsync(login)
-                .flatMap(userViaInfo -> {
-                    System.out.println("id" + userViaInfo.getId());
+        return userServiceAsyncClient.findUserByLogin(login)
+                .onErrorMap(
+                        NotFoundException.class,
+                        e -> {
+                            logServiceLayerProcessed(e.getClass(), this.getClass());
+                            return new ForbiddenException("Didn't find a user via login");
+                        }
+                )
+                .map(userViaInfo -> {
+                    log.info("Get userViaInfo {}", userViaInfo.toString());
+
                     Optional<UserAuth> user = userRepository.findById(userViaInfo.getId());
                     if (user.isEmpty()) {
-                        return Mono.error(new NotFoundException("User not found"));
+                        log.info("User not found");
+                        throw new NotFoundException("User not found");
                     }
-                    if (!user.get().isEnabled()) {
-                        return Mono.error(new ForbiddenException("User not enabled"));
+                    if (!user.get().getEnabled()) {
+                        log.info("User is disabled");
+                        throw new ForbiddenException("User not enabled");
                     }
 
                     if (!encoder.matches(password, user.get().getPassword().getValue())) {
-                        return Mono.error(new ForbiddenException("Password not matches"));
+                        log.info("Password not matches");
+                        throw new ForbiddenException("Password not matches");
                     }
 
 
@@ -108,40 +130,10 @@ public class AuthService {
                     log.info("bundled token access");
                     bundle.setRefreshToken(jwtService.upsertRefreshToken(user.get()));
 
-                    return Mono.just(bundle);
+                    return ResponseEntity.ok(bundle);
+                })
+                .onErrorMap(throwable -> {
+                    return throwable;
                 });
-//
-//
-//        log.info("login user");
-//        UserAuth userAuth;
-//        try {
-//            UserViaId userViaId = null;
-//            Optional.of(userService.findUserByLogin(login)).orElseThrow(
-//                    () -> new ServiceUnavailable("Service unavailable")
-//            );
-//            userAuth = userRepository.findById(userViaId.getUserId()).orElseThrow(
-//                    () -> new ForbiddenException("User not found")
-//            );
-//        } catch (FeignException e) {
-//            throw new ServiceUnavailable("Service unavailable");
-//        }
-//
-//        System.out.println(userAuth.getRoles());
-//        if (!userAuth.isEnabled()) {
-//            throw new ForbiddenException("user with login: " + login + " ban");
-//        }
-//
-//        if (!encoder.matches(password, userAuth.getPassword().getValue())) {
-//            throw new UnauthorizedException("pass not matches");
-//        }
-//
-//        TokensBundle bundle = new TokensBundle();
-//        String accessToken = jwtService.createAccessToken(userAuth);
-//        log.info("try bundle token access");
-//        bundle.setAccessToken(jwtService.createAccessToken(userAuth));
-//        log.info("bundled token access");
-//        bundle.setRefreshToken(jwtService.upsertRefreshToken(userAuth));
-//
-//        return bundle;
     }
 }

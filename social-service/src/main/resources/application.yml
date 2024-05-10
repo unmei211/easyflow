@@ -6,11 +6,6 @@ spring:
     username: easyflow
     password: easyflow
     driver-class-name: org.postgresql.Driver
-  jpa:
-    generate-ddl: off
-    database: postgresql
-    hibernate:
-      ddl-auto: validate
   flyway:
     locations: classpath:migrations
     url: jdbc:postgresql://localhost:5432/easyflow
@@ -19,6 +14,11 @@ spring:
     baseline-on-migrate: true
     validate-on-migrate: true
     enabled: true
+  jpa:
+    generate-ddl: off
+    database: postgresql
+    hibernate:
+      ddl-auto: validate
   cloud:
     openfeign:
       client:

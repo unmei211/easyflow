@@ -6,8 +6,12 @@ services:
     environment:
       POSTGRES_USER: easyflow
       POSTGRES_PASSWORD: easyflow
-      POSTGRES_DB: easyflow
+      POSTGRES_MULTIPLE_DATABASES: easyflow, gateway, user
     volumes:
-      - easyflow-database:/var/lib/postgresql/data
+      - easyflow-databases:/var/lib/postgresql/data
+#      - type: bind
+#        source: /opt/docker_postgres/postgres_data
+#        target: /var/lib/postgresql/data/
+      - ./init-database.sh:/docker-entrypoint-initdb.d/init-database.sh
 volumes:
-  easyflow-database:
+  easyflow-databases:

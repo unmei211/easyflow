@@ -119,4 +119,5 @@ public class ErrorsAssociate {
     public <T extends RuntimeException, U extends HttpStatusCode> T getInit(String message, U status) {
         return letInit(message, status.value());
     }
+
 }

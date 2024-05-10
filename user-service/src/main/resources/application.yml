@@ -2,10 +2,18 @@ server:
   port: ${easyflow.ecosystem.user-service.port}
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/easyflow
+    url: jdbc:postgresql://localhost:5432/users
     username: easyflow
     password: easyflow
     driver-class-name: org.postgresql.Driver
+  flyway:
+    locations: classpath:migrations/users
+    url: jdbc:postgresql://localhost:5432/users
+    user: easyflow
+    password: easyflow
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    enabled: true
   jpa:
     generate-ddl: off
     database: postgresql

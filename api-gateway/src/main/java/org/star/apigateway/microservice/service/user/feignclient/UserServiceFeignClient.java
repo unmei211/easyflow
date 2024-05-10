@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.star.apigateway.microservice.service.user.UserServiceApi;
 import org.star.apigateway.microservice.service.user.model.user.UserToSaveTransfer;
 import org.star.apigateway.microservice.share.model.user.UserViaId;
+import org.star.apigateway.microservice.share.model.user.UserViaInfo;
 //import org.star.apigateway.microservice.user.api.UserServiceApi;
 
 //import org.star.apigateway.microservice.user.api.model.user.UserUserServiceTransfer;
@@ -19,5 +20,5 @@ public interface UserServiceFeignClient extends UserServiceApi {
     UserViaId saveUser(@RequestBody UserToSaveTransfer userToSave);
 
     @GetMapping("/user/{login}")
-    UserViaId findUserByLogin(@PathVariable(name = "login") String login);
+    UserViaInfo findUserByLogin(@PathVariable(name = "login") String login);
 }

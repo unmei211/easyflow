@@ -7,9 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableFeignClients
 @SpringBootApplication
 public class ApiGateway {
-
     public static void main(String[] args) {
         SpringApplication.run(ApiGateway.class, args);
     }
-
 }

@@ -4,6 +4,19 @@ server:
 spring:
   main:
     web-application-type: reactive
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gateway
+    username: easyflow
+    password: easyflow
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    locations: classpath:migrations/gateway
+    url: jdbc:postgresql://localhost:5432/gateway
+    user: easyflow
+    password: easyflow
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    enabled: true
   cloud:
     gateway:
       routes:
@@ -24,13 +37,6 @@ spring:
             url: "${easyflow.ecosystem.user-service.url}"
           authClient:
             url: "${easyflow.ecosystem.auth-service.url}"
-
-
-  datasource:
-    url: jdbc:postgresql://localhost:5432/easyflow
-    username: easyflow
-    password: easyflow
-    driver-class-name: org.postgresql.Driver
   jpa:
     generate-ddl: off
     database: postgresql

@@ -22,12 +22,16 @@ public class UserServiceController {
     @PostMapping("/create")
     public ResponseEntity<UserViaId> saveUser(@RequestBody UserToSaveTransfer userToSave) {
         System.out.println(userToSave.getEmail() + " bebebebe");
-        return new ResponseEntity<>(new UserViaId(userService.saveUser(userToSave.getEmail(), userToSave.getLogin()).getId()), HttpStatus.CREATED);
+        UserUService serviceUser = userService.saveUser(userToSave.getEmail(), userToSave.getLogin());
+        UserViaId newUser = new UserViaId(serviceUser.getId());
+        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
     @GetMapping("/{login}")
     public ResponseEntity<UserViaInfo> findUserByLogin(@NotNull @PathVariable("login") String login) {
+        log.info("Try find user by login {}", login);
         UserUService userFromService = userService.findUserByLogin(login);
+        log.info("Find user {}", userFromService.toString());
         UserViaInfo user = UserViaInfo.builder()
                 .id(userFromService.getId())
                 .login(userFromService.getLogin())

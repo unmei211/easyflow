@@ -25,7 +25,7 @@ public class DataAuthService {
 
     public UserAuth findIfPresent(final String userId) {
         UserAuth user = findById(userId);
-        if (user.getEnabled().getEnabled()) {
+        if (user.getEnabled()) {
             return user;
         } else {
             throw new NotFoundException("User not found");

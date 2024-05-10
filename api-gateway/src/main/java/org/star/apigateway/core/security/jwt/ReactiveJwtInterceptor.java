@@ -53,7 +53,7 @@ public class ReactiveJwtInterceptor implements GatewayInterceptor {
                     throw new UnauthorizedException("Not found authorization header but required");
                 }
 
-                if (!dataAuthService.findById(userCredentials.getUserId()).getEnabled().getEnabled()) {
+                if (!dataAuthService.findById(userCredentials.getUserId()).getEnabled()) {
                     throw new UnauthorizedException("User blocked");
                 }
 

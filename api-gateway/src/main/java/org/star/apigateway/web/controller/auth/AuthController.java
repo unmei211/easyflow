@@ -36,40 +36,21 @@ public class AuthController {
     private final ReactiveJwtInterceptor reactiveJwtInterceptor;
 
     @PostMapping
-    public Mono<ResponseEntity<Object>> register(
+    public Mono<ResponseEntity<UserViaId>> register(
             final @RequestBody Registration registration
     ) {
-        return authService.register(registration.getLogin(), registration.getEmail(), registration.getPassword())
-                .map(userViaId -> {
-                    return ResponseEntity.status(HttpStatus.CREATED).build();
-                })
-//                .flatMap(userViaId -> {
-//                    return Mono.just(ResponseEntity.status(HttpStatus.CREATED).build());
-//                })
-//                .onErrorResume((throwable -> {
-//                    return Mono.just(ResponseEntity.of(Optional.of(throwable)));
-//                }));
-                .onErrorReturn(ForbiddenException.class,
-                        ResponseEntity.status(HttpStatus.FORBIDDEN).build()
-                );
+        return authService.register(
+                registration.getLogin(),
+                registration.getEmail(),
+                registration.getPassword()
+        );
     }
 
     @PostMapping("/login")
-    public Mono<ResponseEntity<Object>> login(
+    public Mono<ResponseEntity<TokensBundle>> login(
             final @RequestBody Login login
     ) {
-       return authService.login(login.getLogin(), login.getPassword())
-               .flatMap(tokensBundle -> {
-                   // Создаем новый ResponseEntity с объектом tokensBundle в качестве тела ответа
-                   return Mono.just(ResponseEntity.ok((Object) tokensBundle));
-               })// Преобразовать TokensBundle в ResponseEntity
-               .onErrorResume(NotFoundException.class, error -> {
-                   return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).build());
-               })
-               .onErrorResume(ForbiddenException.class,
-                       error -> Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).build()));
-
-//        return new ResponseEntity<>(bundle, HttpStatus.OK);
+        return authService.login(login.getLogin(), login.getPassword());
     }
 
     @AuthRoleRequired(anyRole = true)

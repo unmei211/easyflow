@@ -1,18 +1,15 @@
 package org.star.apigateway.core.model.user;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.star.apigateway.core.model.enabled.UserEnabled;
+import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.star.apigateway.core.model.password.Password;
 import org.star.apigateway.core.model.roles.Role;
 import org.star.apigateway.core.model.token.RefreshToken;
 
 import java.util.*;
 
-@Table(name = "users")
+@Table(name = "users_auth")
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,7 +17,6 @@ import java.util.*;
 @Setter
 public class UserAuth {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
@@ -29,8 +25,8 @@ public class UserAuth {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private RefreshToken refreshToken;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private UserEnabled enabled;
+    @Column(nullable = false)
+    private Boolean enabled = true;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -48,16 +44,5 @@ public class UserAuth {
             presentRoles.add(role.getRole());
         }
         return presentRoles;
-    }
-
-    public UserAuth(
-            final String id
-    ) {
-        this.id = id;
-    }
-
-    public Boolean isEnabled() {
-        System.out.println(getEnabled() + " bebebe");
-        return getEnabled().getEnabled();
     }
 }

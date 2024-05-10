@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.star.apigateway.microservice.service.user.UserServiceApi;
 import org.star.apigateway.microservice.service.user.UserServiceAsyncApi;
 import org.star.apigateway.microservice.share.error.exceptions.security.ForbiddenException;
 import org.star.apigateway.microservice.share.error.exceptions.security.UnauthorizedException;
@@ -21,7 +22,7 @@ import java.util.function.Supplier;
 
 @Slf4j
 @Component
-public class UserServiceWebClient implements UserServiceAsyncApi {
+public class UserServiceWebClient {
     private final WebClient client;
     private final ErrorsAssociate associate;
 
@@ -37,7 +38,7 @@ public class UserServiceWebClient implements UserServiceAsyncApi {
         log.info("Throw for reactive chain status: {}\tfrom request: saveUserAsync", clientResponse.statusCode().value());
     }
 
-    public Mono<UserViaId> saveUserAsync(final UserToSaveTransfer userToSave) {
+    public Mono<UserViaId> saveUser(final UserToSaveTransfer userToSave) {
         return client
                 .post()
                 .uri(String.join("", "/user", "/create"))
@@ -60,7 +61,7 @@ public class UserServiceWebClient implements UserServiceAsyncApi {
                 .bodyToMono(UserViaId.class);
     }
 
-    public Mono<UserViaInfo> findUserByLoginAsync(String login) {
+    public Mono<UserViaInfo> findUserByLogin(String login) {
         return client
                 .get()
                 .uri(String.join("", "/user", "/", login))
