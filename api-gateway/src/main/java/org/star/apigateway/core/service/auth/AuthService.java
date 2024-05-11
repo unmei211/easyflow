@@ -2,6 +2,7 @@ package org.star.apigateway.core.service.auth;
 
 import feign.FeignException;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,16 +31,16 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 public class AuthService {
     private final UserAuthRepository userRepository;
     private final BCryptPasswordEncoder encoder;
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
-    private final UserServiceFeignClient userService;
+//    private final UserServiceFeignClient userService;
     private final UserServiceWebClient userServiceAsyncClient;
-    private final ErrorsAssociate associate;
+//    private final ErrorsAssociate associate;
 
     private static void logServiceLayerProcessed(
             final Class<? extends RuntimeException> exceptionClazz,

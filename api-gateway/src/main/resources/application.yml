@@ -20,8 +20,8 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: social-service
-          uri: "${easyflow.ecosystem.social-service.url}"
+        - id: user-service
+          uri: "${easyflow.ecosystem.user-service.url}"
           predicates:
             - Path=/user/**
           filters:

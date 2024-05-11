@@ -13,9 +13,9 @@ import org.springframework.web.reactive.result.method.HandlerMethodArgumentResol
 import org.springframework.web.server.ServerWebExchange;
 import org.star.apigateway.core.security.jwt.ReactiveJwtInterceptor;
 import org.star.apigateway.core.security.resolver.adapter.AnnotationGatewayAdapter;
-import org.star.apigateway.core.security.user.UserCredentials;
 import org.star.apigateway.microservice.share.error.exceptions.security.ForbiddenException;
 import org.star.apigateway.microservice.share.error.exceptions.security.UnauthorizedException;
+import org.star.apigateway.microservice.share.transfer.user.UserCredentials;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Method;
@@ -66,10 +66,8 @@ public class UserCredentialsReactiveResolver implements HandlerMethodArgumentRes
                 throw new UnauthorizedException("Invalid");
             }
 
-            UserCredentials userCredentials = UserCredentials.toPresent(rawUserCredentials, mapper);
-            if (userCredentials == null) {
-                throw new UnauthorizedException("Invalid");
-            }
+            UserCredentials userCredentials = UserCredentials.parse(rawUserCredentials, mapper)
+                    .orElseThrow(() -> new ForbiddenException("Error parse"));
             return Mono.just(userCredentials);
 
         } catch (Exception e) {

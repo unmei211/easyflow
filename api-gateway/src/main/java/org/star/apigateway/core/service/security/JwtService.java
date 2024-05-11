@@ -12,8 +12,8 @@ import org.star.apigateway.core.model.user.UserAuth;
 import org.star.apigateway.core.repository.token.TokenRepository;
 import org.star.apigateway.core.repository.user.UserAuthRepository;
 import org.star.apigateway.core.security.jwt.JwtSettings;
-import org.star.apigateway.core.security.user.UserCredentials;
 import org.star.apigateway.microservice.share.error.exceptions.core.NotFoundException;
+import org.star.apigateway.microservice.share.transfer.user.UserCredentials;
 import org.star.apigateway.web.exception.security.TokenExpiredException;
 import org.star.apigateway.web.model.jwt.TokensBundle;
 

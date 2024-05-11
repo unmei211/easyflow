@@ -10,7 +10,9 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.star.apigateway.microservice.share.error.exceptions.security.UnauthorizedException;
-import org.star.socialservice.web.model.user.UserCredentials;
+import org.star.apigateway.microservice.share.transfer.user.UserCredentials;
+
+import java.util.Optional;
 
 @Slf4j
 @AllArgsConstructor
@@ -22,13 +24,16 @@ public class UserCredentialsResolver implements HandlerMethodArgumentResolver {
             final @NonNull MethodParameter parameter,
             final ModelAndViewContainer mavContainer,
             final @NonNull NativeWebRequest webRequest,
-            final WebDataBinderFactory binderFactory) throws Exception {
-        try {
-            log.info("Resolve userCredentials from headers");
-            return UserCredentials.toPresent(webRequest.getHeader(UserCredentials.USER_CREDENTIALS), mapper);
-        } catch (Exception e) {
-            throw new UnauthorizedException("Unauthorized");
-        }
+            final WebDataBinderFactory binderFactory) {
+        log.info("Try get header");
+        String header = Optional.ofNullable(webRequest.getHeader(UserCredentials.USER_CREDENTIALS)).orElseThrow(
+                () -> new UnauthorizedException("Invalid header")
+        );
+
+        log.info("Resolve userCredentials from headers");
+        return UserCredentials.parse(header, mapper).orElseThrow(
+                () -> new UnauthorizedException("Error in parse token")
+        );
     }
 
     @Override

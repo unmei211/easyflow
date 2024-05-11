@@ -1,4 +1,4 @@
-package org.star.userservice.core.models.user;
+package org.star.userservice.core.models;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class UserUService {
+public class UserOfUserService {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -21,7 +21,7 @@ public class UserUService {
     @Column(unique = true, nullable = false)
     private String email;
 
-    public UserUService(
+    public UserOfUserService(
             final String login,
             final String email
     ) {

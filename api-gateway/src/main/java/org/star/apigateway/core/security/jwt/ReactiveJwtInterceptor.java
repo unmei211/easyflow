@@ -10,10 +10,10 @@ import org.springframework.web.server.ServerWebExchange;
 import org.star.apigateway.core.gateway.AuthorityGatewayFilterFactory;
 import org.star.apigateway.core.model.roles.RolesEnum;
 import org.star.apigateway.core.gateway.GatewayInterceptor;
-import org.star.apigateway.core.security.user.UserCredentials;
 import org.star.apigateway.core.service.auth.DataAuthService;
 import org.star.apigateway.core.service.security.JwtService;
 import org.star.apigateway.microservice.share.error.exceptions.security.UnauthorizedException;
+import org.star.apigateway.microservice.share.transfer.user.UserCredentials;
 
 import java.util.List;
 

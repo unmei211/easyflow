@@ -5,7 +5,7 @@ import org.star.apigateway.microservice.share.model.user.UserViaId;
 import org.star.apigateway.microservice.share.model.user.UserViaInfo;
 
 public interface UserServiceApi {
-    UserViaId saveUser(UserToSaveTransfer userToSave);
+    UserViaId createUser(UserToSaveTransfer userToSave);
 
     UserViaInfo findUserByLogin(String login);
 }

@@ -1,4 +1,4 @@
-package org.star.socialservice.web.model.user;
+package org.star.apigateway.microservice.share.transfer.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * UserCredentials
@@ -21,13 +22,17 @@ public class UserCredentials {
 
     private List<String> roles;
 
-    public static UserCredentials toPresent(final String json, final ObjectMapper mapper) {
+    public static Optional<UserCredentials> parse(final String json, final ObjectMapper mapper) {
+        if (json == null || json.isEmpty()) {
+            return Optional.empty();
+        }
         try {
             System.out.println(json);
-            return mapper.readValue(json, UserCredentials.class);
+            return Optional.of(mapper.readValue(json, UserCredentials.class));
         } catch (Exception e) {
             System.out.println("ex");
-            return null;
+            return Optional.empty();
         }
     }
+
 }

@@ -26,7 +26,6 @@ public class AuthorityGatewayFilterFactory extends AbstractGatewayFilterFactory<
     @Override
     public GatewayFilter apply(Config config) {
         return ((exchange, chain) -> {
-            System.out.println("filter");
             if (interceptor.preHandle(exchange, config)) {
                 return chain.filter(exchange);
             }

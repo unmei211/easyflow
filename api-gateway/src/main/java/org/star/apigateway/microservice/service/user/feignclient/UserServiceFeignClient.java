@@ -16,8 +16,8 @@ import org.star.apigateway.microservice.share.model.user.UserViaInfo;
 
 @FeignClient(name = "userClient")
 public interface UserServiceFeignClient extends UserServiceApi {
-    @PostMapping("/user/save")
-    UserViaId saveUser(@RequestBody UserToSaveTransfer userToSave);
+    @PostMapping("/user/create")
+    UserViaId createUser(@RequestBody UserToSaveTransfer userToSave);
 
     @GetMapping("/user/{login}")
     UserViaInfo findUserByLogin(@PathVariable(name = "login") String login);
