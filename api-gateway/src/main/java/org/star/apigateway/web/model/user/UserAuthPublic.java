@@ -1,7 +1,7 @@
 package org.star.apigateway.web.model.user;
 
 import lombok.Getter;
-import org.star.apigateway.core.model.user.UserAuth;
+import org.star.apigateway.core.entity.user.UserAuth;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -3,7 +3,7 @@ package org.star.apigateway.core.service.auth;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.star.apigateway.core.model.user.UserAuth;
+import org.star.apigateway.core.entity.user.UserAuth;
 import org.star.apigateway.core.repository.user.UserAuthRepository;
 import org.star.apigateway.microservice.share.error.exceptions.core.NotFoundException;
 

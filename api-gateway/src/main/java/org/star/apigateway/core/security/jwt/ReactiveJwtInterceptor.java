@@ -1,5 +1,6 @@
 package org.star.apigateway.core.security.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -8,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.star.apigateway.core.gateway.AuthorityGatewayFilterFactory;
-import org.star.apigateway.core.model.roles.RolesEnum;
+import org.star.apigateway.core.entity.roles.RolesEnum;
 import org.star.apigateway.core.gateway.GatewayInterceptor;
 import org.star.apigateway.core.service.auth.DataAuthService;
 import org.star.apigateway.core.service.security.JwtService;
@@ -25,6 +26,7 @@ import java.util.List;
 public class ReactiveJwtInterceptor implements GatewayInterceptor {
     private final JwtService jwtService;
     private final DataAuthService dataAuthService;
+    private final ObjectMapper objectMapper;
 
     @Override
     public boolean preHandle(
@@ -98,9 +100,8 @@ public class ReactiveJwtInterceptor implements GatewayInterceptor {
             String token = header.substring(bearerIndex);
             UserCredentials credentials = jwtService.parseToken(token);
             log.info("Found credentials in Authorization header: {}", credentials.getUserId());
-            System.out.println(credentials.toString());
             exchange.getRequest().mutate().headers(httpHeaders -> {
-                httpHeaders.add(UserCredentials.USER_CREDENTIALS, credentials.toString());
+                httpHeaders.add(UserCredentials.USER_CREDENTIALS, UserCredentials.stringify(credentials, objectMapper));
             });
             return credentials;
         } catch (Exception e) {

@@ -2,13 +2,13 @@ server:
   port: ${easyflow.ecosystem.social-service.port}
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/easyflow
+    url: jdbc:postgresql://localhost:5432/social
     username: easyflow
     password: easyflow
     driver-class-name: org.postgresql.Driver
   flyway:
-    locations: classpath:migrations
-    url: jdbc:postgresql://localhost:5432/easyflow
+    locations: classpath:migrations/social
+    url: jdbc:postgresql://localhost:5432/social
     user: easyflow
     password: easyflow
     baseline-on-migrate: true
@@ -26,7 +26,6 @@ spring:
           authClient:
             url: "${easyflow.ecosystem.auth-service.url}"
 
-
 easyflow:
   ecosystem:
     auth-service:
@@ -37,3 +36,7 @@ easyflow:
       url: http://127.0.0.1:8100
       domain: 127.0.0.1
       port: 8100
+    user-service:
+      url: http://127.0.0.1:8105
+      domain: 127.0.0.1
+      port: 8105

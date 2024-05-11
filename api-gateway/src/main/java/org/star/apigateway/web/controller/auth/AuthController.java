@@ -6,14 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
-import org.star.apigateway.core.model.user.UserAuth;
+import org.star.apigateway.core.entity.user.UserAuth;
 import org.star.apigateway.core.security.jwt.ReactiveJwtInterceptor;
 import org.star.apigateway.core.security.resolver.AuthRoleRequired;
 import org.star.apigateway.core.service.auth.AuthService;
 import org.star.apigateway.core.service.auth.DataAuthService;
-import org.star.apigateway.microservice.service.user.feignclient.UserServiceFeignClient;
-import org.star.apigateway.microservice.share.error.exceptions.core.NotFoundException;
-import org.star.apigateway.microservice.share.error.exceptions.security.ForbiddenException;
+import org.star.apigateway.microservice.service.user.client.feignclient.UserServiceFeignClient;
 import org.star.apigateway.microservice.share.error.exceptions.security.UnauthorizedException;
 import org.star.apigateway.microservice.share.model.user.UserViaId;
 import org.star.apigateway.microservice.share.transfer.user.UserCredentials;
@@ -22,8 +20,6 @@ import org.star.apigateway.web.model.auth.Registration;
 import org.star.apigateway.web.model.jwt.TokensBundle;
 import org.star.apigateway.web.model.user.UserAuthPublic;
 import reactor.core.publisher.Mono;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")

@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.star.userservice.core.microservice.resolver.UserCredentialsResolver;
+import org.star.apigateway.microservice.share.resolver.MicroserviceUserCredentialsResolver;
 
 import java.util.List;
 
@@ -21,6 +21,6 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     public void addArgumentResolvers(
             final List<HandlerMethodArgumentResolver> resolvers
     ) {
-        resolvers.add(new UserCredentialsResolver(mapper));
+        resolvers.add(new MicroserviceUserCredentialsResolver(mapper));
     }
 }

@@ -35,4 +35,15 @@ public class UserCredentials {
         }
     }
 
+    public static String stringify(final UserCredentials userCredentials, final ObjectMapper mapper) {
+        if (userCredentials == null) {
+            return null;
+        }
+        try {
+            return mapper.writeValueAsString(userCredentials);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 }

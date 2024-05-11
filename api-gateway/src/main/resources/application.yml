@@ -23,11 +23,20 @@ spring:
         - id: user-service
           uri: "${easyflow.ecosystem.user-service.url}"
           predicates:
-            - Path=/user/**
+            - Path=/test/**
           filters:
             - name: Authority
               args:
                 access: USER
+        - id: social-service
+          uri: "${easyflow.ecosystem.social-service.url}"
+          predicates:
+            - Path=/social/**
+          filters:
+            - name: Authority
+              args:
+                access: USER
+
     openfeign:
       client:
         config:

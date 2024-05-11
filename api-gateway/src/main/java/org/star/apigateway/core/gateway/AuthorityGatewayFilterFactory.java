@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.stereotype.Component;
-import org.star.apigateway.core.model.roles.RolesEnum;
+import org.star.apigateway.core.entity.roles.RolesEnum;
 import org.star.apigateway.core.security.jwt.ReactiveJwtInterceptor;
 
 import java.util.ArrayList;

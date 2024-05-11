@@ -1,8 +1,7 @@
 package org.star.apigateway.core.repository.password;
 
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
-import org.star.apigateway.core.model.password.Password;
+import org.star.apigateway.core.entity.password.Password;
 
 import java.util.Optional;
 

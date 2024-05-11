@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.star.apigateway.core.model.token.RefreshToken;
+import org.star.apigateway.core.entity.token.RefreshToken;
 
 @AllArgsConstructor
 @NoArgsConstructor

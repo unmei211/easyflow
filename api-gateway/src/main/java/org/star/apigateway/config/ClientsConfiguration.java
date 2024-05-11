@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.star.apigateway.microservice.service.user.webclient.UserServiceWebClient;
 import org.star.apigateway.microservice.share.error.exceptions.core.ConflictException;
 import org.star.apigateway.microservice.share.error.exceptions.core.NotFoundException;
 import org.star.apigateway.microservice.share.error.exceptions.security.ForbiddenException;
@@ -15,7 +14,7 @@ import org.star.apigateway.microservice.share.error.handlers.feign.FeignErrorDec
 
 @Configuration
 @RequiredArgsConstructor
-public class ClientsConfiguration {
+public class ClientsConfiguration{
     @Bean
     public ErrorsAssociate errorsAssociate() {
         ErrorsAssociate errorsAssociate = new ErrorsAssociate();
