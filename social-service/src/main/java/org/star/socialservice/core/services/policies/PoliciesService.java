@@ -7,6 +7,7 @@ import org.star.apigateway.microservice.share.error.exceptions.core.ConflictExce
 import org.star.apigateway.microservice.share.error.exceptions.core.NotFoundException;
 import org.star.apigateway.microservice.share.error.exceptions.security.ForbiddenException;
 import org.star.socialservice.core.entity.policies.UserPolicies;
+import org.star.socialservice.core.model.policies.PolicyBundle;
 import org.star.socialservice.core.repository.policies.PoliciesRepository;
 
 @Service
@@ -42,5 +43,19 @@ public class PoliciesService {
 
     public boolean availableForSendTask(final String userId) {
         return findUserPolicy(userId).getAllowedSendTask();
+    }
+
+    public void changePolicy(final String userId, final PolicyBundle policiesBundle) {
+        log.info("Change policy");
+        UserPolicies policies = policyRepository.findByUserId(userId).orElseThrow(
+                () -> {
+                    log.info("Not found user policy");
+                    return new NotFoundException("Not found user policy");
+                }
+        );
+
+        if (policies.updatePolicy(policiesBundle)) {
+            policyRepository.save(policies);
+        }
     }
 }

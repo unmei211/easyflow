@@ -40,4 +40,17 @@ public class UserPolicies {
         user.setId(userId);
         this.user = user;
     }
+
+    public boolean updatePolicy(final PolicyBundle policyBundle) {
+        boolean anyChange = false;
+        if (policyBundle.getAllowedSendTask() != null) {
+            this.allowedSendTask = policyBundle.getAllowedSendTask();
+            anyChange = true;
+        }
+        if (policyBundle.getAllowedToFriendRequest() != null) {
+            this.allowedToFriendRequest = policyBundle.getAllowedToFriendRequest();
+            anyChange = true;
+        }
+        return anyChange;
+    }
 }

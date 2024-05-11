@@ -49,7 +49,7 @@ public class SocialService {
         log.info("Find user to {}", to);
 
 
-        if (from.getFriends().contains(to)) {
+        if (from.isFriend(to)) {
             log.info("User {} already friend to {}", from.getId(), to.getId());
             throw new ConflictException("User is friend");
         }
@@ -61,7 +61,7 @@ public class SocialService {
 
         if (from.getFriendRequests().contains(to)) {
             from.removeFriendRequest(to);
-            acceptFriendRequest(from, to);
+            bindFriends(from, to);
             return;
         }
 
@@ -69,9 +69,20 @@ public class SocialService {
         socialRepository.save(to);
     }
 
-    public void acceptFriendRequest(SocialUser from, SocialUser to) {
-        from.addFriend(to);
-        socialRepository.save(from);
-        socialRepository.save(to);
+    private void bindFriends(SocialUser first, SocialUser second) {
+        first.addFriend(second);
+        socialRepository.save(first);
+        socialRepository.save(second);
+    }
+
+    public void acceptFriendRequest(SocialUser sender, SocialUser receiver) {
+        if (receiver.isFriend(sender)) {
+            throw new ConflictException("Already friend");
+        }
+
+        if (receiver.haveInviteFrom(sender)) {
+            receiver.removeFriendRequest(sender);
+            bindFriends(sender, receiver);
+        }
     }
 }

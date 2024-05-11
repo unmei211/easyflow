@@ -86,4 +86,18 @@ public class SocialUser {
         }
         return this;
     }
+
+    public boolean isFriend(final SocialUser comparable) {
+        if (getFriends().contains(comparable)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean haveInviteFrom(final SocialUser comparable) {
+        if (getFriendRequests().contains(comparable)) {
+            return true;
+        }
+        return false;
+    }
 }
