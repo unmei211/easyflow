@@ -1,25 +1,51 @@
 server:
-  port: 8095
+  port: "${easyflow.ecosystem.auth-service.port}"
   forward-headers-strategy: framework
 spring:
   main:
     web-application-type: reactive
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gateway
+    username: easyflow
+    password: easyflow
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    locations: classpath:migrations/gateway
+    url: jdbc:postgresql://localhost:5432/gateway
+    user: easyflow
+    password: easyflow
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    enabled: true
   cloud:
     gateway:
       routes:
-        - id: social-service
-          uri: http://127.0.0.1:8100
+        - id: user-service
+          uri: "${easyflow.ecosystem.user-service.url}"
           predicates:
-            - Path=/user/**
+            - Path=/test/**
           filters:
             - name: Authority
               args:
                 access: USER
-  datasource:
-    url: jdbc:postgresql://localhost:5432/easyflow
-    username: easyflow
-    password: easyflow
-    driver-class-name: org.postgresql.Driver
+        - id: social-service
+          uri: "${easyflow.ecosystem.social-service.url}"
+          predicates:
+            - Path=/social/**
+          filters:
+            - name: Authority
+              args:
+                access: USER
+
+    openfeign:
+      client:
+        config:
+          socialClient:
+            url: "${easyflow.ecosystem.social-service.url}"
+          userClient:
+            url: "${easyflow.ecosystem.user-service.url}"
+          authClient:
+            url: "${easyflow.ecosystem.auth-service.url}"
   jpa:
     generate-ddl: off
     database: postgresql
@@ -31,3 +57,17 @@ jwt:
   aTokenDuration: 30
   rTokenDuration: 168
 
+easyflow:
+  ecosystem:
+    auth-service:
+      url: http://127.0.0.1:8095
+      domain: 127.0.0.1
+      port: 8095
+    social-service:
+      url: http://127.0.0.1:8100
+      domain: 127.0.0.1
+      port: 8100
+    user-service:
+      url: http://127.0.0.1:8105
+      domain: 127.0.0.1
+      port: 8105

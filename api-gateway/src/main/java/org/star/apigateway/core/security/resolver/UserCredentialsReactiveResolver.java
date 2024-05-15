@@ -13,13 +13,12 @@ import org.springframework.web.reactive.result.method.HandlerMethodArgumentResol
 import org.springframework.web.server.ServerWebExchange;
 import org.star.apigateway.core.security.jwt.ReactiveJwtInterceptor;
 import org.star.apigateway.core.security.resolver.adapter.AnnotationGatewayAdapter;
-import org.star.apigateway.core.security.user.UserCredentials;
-import org.star.apigateway.web.exception.security.UnauthorizedException;
+import org.star.apigateway.microservice.share.error.exceptions.security.ForbiddenException;
+import org.star.apigateway.microservice.share.error.exceptions.security.UnauthorizedException;
+import org.star.apigateway.microservice.share.transfer.user.UserCredentials;
 import reactor.core.publisher.Mono;
 
-import javax.management.Attribute;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Objects;
 
 @Slf4j
@@ -45,13 +44,17 @@ public class UserCredentialsReactiveResolver implements HandlerMethodArgumentRes
         try {
             Method method = handlerMethod.getMethod();
             AuthRoleRequired annotation = method.getAnnotation(AuthRoleRequired.class);
-            if (annotation == null) {
-                return Mono.empty();
-            }
 
-            if (!interceptor.preHandle(exchange, AnnotationGatewayAdapter.getConfig(annotation))) {
+
+            if (annotation == null) {
+                if (interceptor.getUserCredentials(exchange) == null) {
+                    throw new ForbiddenException("Can't parse token");
+                }
+
+            } else if (!interceptor.preHandle(exchange, AnnotationGatewayAdapter.getConfig(annotation))) {
                 throw new UnauthorizedException("Not enough permission");
             }
+
 
             String rawUserCredentials = Objects.requireNonNull(exchange
                             .getRequest()
@@ -63,10 +66,8 @@ public class UserCredentialsReactiveResolver implements HandlerMethodArgumentRes
                 throw new UnauthorizedException("Invalid");
             }
 
-            UserCredentials userCredentials = UserCredentials.toPresent(rawUserCredentials, mapper);
-            if (userCredentials == null) {
-                throw new UnauthorizedException("Invalid");
-            }
+            UserCredentials userCredentials = UserCredentials.parse(rawUserCredentials, mapper)
+                    .orElseThrow(() -> new ForbiddenException("Error parse"));
             return Mono.just(userCredentials);
 
         } catch (Exception e) {

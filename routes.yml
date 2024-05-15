@@ -1,6 +1,0 @@
-auth-service:
-  public:
-    - /signin
-    - /signup
-  authority:
-    - /whoami

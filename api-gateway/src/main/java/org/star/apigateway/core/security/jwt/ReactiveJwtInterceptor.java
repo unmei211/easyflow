@@ -1,5 +1,6 @@
 package org.star.apigateway.core.security.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -7,13 +8,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-import org.star.apigateway.core.model.roles.RolesEnum;
-import org.star.apigateway.core.security.gateway.GatewayInterceptor;
-import org.star.apigateway.core.security.user.UserCredentials;
-import org.star.apigateway.core.service.auth.AuthService;
+import org.star.apigateway.core.gateway.AuthorityGatewayFilterFactory;
+import org.star.apigateway.core.entity.roles.RolesEnum;
+import org.star.apigateway.core.gateway.GatewayInterceptor;
+import org.star.apigateway.core.service.auth.DataAuthService;
 import org.star.apigateway.core.service.security.JwtService;
-import org.star.apigateway.web.exception.security.UnauthorizedException;
-import org.star.apigateway.web.filter.gateway.AuthorityGatewayFilterFactory;
+import org.star.apigateway.microservice.share.error.exceptions.security.UnauthorizedException;
+import org.star.apigateway.microservice.share.transfer.user.UserCredentials;
 
 import java.util.List;
 
@@ -24,7 +25,8 @@ import java.util.List;
 @Slf4j
 public class ReactiveJwtInterceptor implements GatewayInterceptor {
     private final JwtService jwtService;
-    private final AuthService authService;
+    private final DataAuthService dataAuthService;
+    private final ObjectMapper objectMapper;
 
     @Override
     public boolean preHandle(
@@ -53,7 +55,7 @@ public class ReactiveJwtInterceptor implements GatewayInterceptor {
                     throw new UnauthorizedException("Not found authorization header but required");
                 }
 
-                if (!authService.findById(userCredentials.getUserId()).getEnabled()) {
+                if (!dataAuthService.findById(userCredentials.getUserId()).getEnabled()) {
                     throw new UnauthorizedException("User blocked");
                 }
 
@@ -98,9 +100,8 @@ public class ReactiveJwtInterceptor implements GatewayInterceptor {
             String token = header.substring(bearerIndex);
             UserCredentials credentials = jwtService.parseToken(token);
             log.info("Found credentials in Authorization header: {}", credentials.getUserId());
-            System.out.println(credentials.toString());
             exchange.getRequest().mutate().headers(httpHeaders -> {
-                httpHeaders.add(UserCredentials.USER_CREDENTIALS, credentials.toString());
+                httpHeaders.add(UserCredentials.USER_CREDENTIALS, UserCredentials.stringify(credentials, objectMapper));
             });
             return credentials;
         } catch (Exception e) {
