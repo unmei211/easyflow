@@ -1,6 +1,8 @@
 server:
   port: ${easyflow.ecosystem.user-service.port}
 spring:
+  application:
+    name: "user-service"
   datasource:
     url: jdbc:postgresql://localhost:5432/users
     username: easyflow
@@ -25,8 +27,15 @@ spring:
         config:
           authClient:
             url: "${easyflow.ecosystem.auth-service.url}"
+          taskClient:
+            url: "${easyflow.ecosystem.task-service.name}"
 #  main:
 #    web-application-type: servlet
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
 
 springdoc:
   swagger-ui:
@@ -46,3 +55,8 @@ easyflow:
       url: http://127.0.0.1:8105
       domain: 127.0.0.1
       port: 8105
+    task-service:
+      url: http://127.0.0.1:8110
+      domain: 127.0.0.1
+      port: 8110
+      name: http://task-service

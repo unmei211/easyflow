@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.star.apigateway.microservice.share.error.exceptions.core.ConflictException;
 import org.star.apigateway.microservice.share.error.exceptions.core.NotFoundException;
 import org.star.apigateway.microservice.share.error.exceptions.security.ForbiddenException;
-import org.star.apigateway.microservice.share.model.user.UserViaId;
 import org.star.socialservice.core.entity.policies.UserPolicies;
 import org.star.socialservice.core.entity.user.SocialUser;
 import org.star.socialservice.core.repository.policies.PoliciesRepository;

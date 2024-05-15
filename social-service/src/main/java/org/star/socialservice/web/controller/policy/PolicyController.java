@@ -22,9 +22,10 @@ public class PolicyController {
 
     @GetMapping
     public ResponseEntity<?> getUserPolicy(
-            UserCredentials credentials
+            UserCredentials credentials,
+            final @RequestBody UserViaId userViaId
     ) {
-        UserPolicies userPolicy = policyService.findUserPolicy(credentials.getUserId());
+        UserPolicies userPolicy = policyService.findUserPolicy(userViaId.getUserId());
 
         return new ResponseEntity<>(userPolicy.getPolicyBundle(), HttpStatus.OK);
     }

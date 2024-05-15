@@ -50,5 +50,6 @@ public class FriendController {
         SocialUser receiver = socialService.findUserViaId(userCredentials.getUserId());
 
         socialService.acceptFriendRequest(sender, receiver);
+        return ResponseEntity.ok().build();
     }
 }
