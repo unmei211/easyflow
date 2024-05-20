@@ -39,7 +39,6 @@ public class JwtService {
                 .setIssuedAt(Date.from(now))
                 .setSubject(user.getId())
                 .setExpiration(Date.from(now.plus(settings.getTokenExpirationIn())));
-        System.out.println(user.getRoles());
         claims.put(ROLES, user.getPresentRoles());
         log.info("claims created");
         log.info("user roles {}", user.getRoles().get(0).getRole());

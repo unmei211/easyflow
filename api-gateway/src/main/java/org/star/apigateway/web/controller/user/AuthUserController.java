@@ -18,9 +18,6 @@ public class AuthUserController {
     public ResponseEntity<?> userIsPresent(
             final @RequestBody UserRequestBody user
             ) {
-        System.out.println("check");
-//        System.out.println(serviceAuth);
-//        service.findIfPresent(body.getUserId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

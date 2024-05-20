@@ -11,6 +11,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.star.apigateway.core.gateway.AuthorityGatewayFilterFactory;
 import org.star.apigateway.core.entity.roles.RolesEnum;
 import org.star.apigateway.core.gateway.GatewayInterceptor;
+import org.star.apigateway.core.repository.role.RoleRepository;
 import org.star.apigateway.core.service.auth.DataAuthService;
 import org.star.apigateway.core.service.security.JwtService;
 import org.star.apigateway.microservice.share.error.exceptions.security.UnauthorizedException;
@@ -27,6 +28,7 @@ public class ReactiveJwtInterceptor implements GatewayInterceptor {
     private final JwtService jwtService;
     private final DataAuthService dataAuthService;
     private final ObjectMapper objectMapper;
+    private final RoleRepository roleRepository;
 
     @Override
     public boolean preHandle(
@@ -47,6 +49,7 @@ public class ReactiveJwtInterceptor implements GatewayInterceptor {
     ) {
         log.info("Try gatewayAuthorization");
         log.info(config.getAccess().toString());
+
         try {
             if (config.requiredProcess()) {
                 log.info("RequiredProcess");
@@ -69,8 +72,8 @@ public class ReactiveJwtInterceptor implements GatewayInterceptor {
                 }
 
                 if (config.isAnyRole()) {
-                    for (RolesEnum role : config.getAccess()) {
-                        if (userCredentials.getRoles().contains(role.toString())) {
+                    for (String role : userCredentials.getRoles()) {
+                        if (roleRepository.findByRole(role).isPresent()) {
                             return true;
                         }
                     }

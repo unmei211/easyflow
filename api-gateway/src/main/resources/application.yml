@@ -2,6 +2,8 @@ server:
   port: "${easyflow.ecosystem.auth-service.port}"
   forward-headers-strategy: framework
 spring:
+  application:
+    name: gateway
   main:
     web-application-type: reactive
   datasource:
@@ -23,7 +25,7 @@ spring:
         - id: user-service
           uri: "${easyflow.ecosystem.user-service.url}"
           predicates:
-            - Path=/test/**
+            - Path=/user/**
           filters:
             - name: Authority
               args:
@@ -36,7 +38,14 @@ spring:
             - name: Authority
               args:
                 access: USER
-
+        - id: task-service
+          uri: "${easyflow.ecosystem.task-service.url}"
+          predicates:
+            - Path=/task/**, /workspace/**
+          filters:
+            - name: Authority
+              args:
+                access: USER
     openfeign:
       client:
         config:
@@ -46,13 +55,15 @@ spring:
             url: "${easyflow.ecosystem.user-service.url}"
           authClient:
             url: "${easyflow.ecosystem.auth-service.url}"
+          taskClient:
+            url: "${easyflow.ecosystem.task-service.url}"
   jpa:
     generate-ddl: off
     database: postgresql
     hibernate:
       ddl-auto: validate
 jwt:
-  issuer: 'pavel.lazarenko@7bits.it'
+  issuer: 'unmei.vs@gmail.com'
   signingKey: 'talspoc120nxjsapqke1d77'
   aTokenDuration: 30
   rTokenDuration: 168
@@ -71,3 +82,7 @@ easyflow:
       url: http://127.0.0.1:8105
       domain: 127.0.0.1
       port: 8105
+    task-service:
+      url: http://127.0.0.1:8110
+      domain: 127.0.0.1
+      port: 8110

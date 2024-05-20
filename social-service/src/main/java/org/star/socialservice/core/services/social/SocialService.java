@@ -38,10 +38,18 @@ public class SocialService {
         );
     }
 
+    public Boolean isFriend(String userId, String userIdToCheck) {
+        SocialUser user = socialRepository.findById(userId).orElseThrow(
+                () -> new NotFoundException("Can't find requester")
+        );
+        SocialUser toCheck = socialRepository.findById(userIdToCheck).orElseThrow(
+                () -> new NotFoundException("Can't find user to check")
+        );
+        return user.getFriends().contains(toCheck);
+    }
+
 
     public void sendFriendRequest(String userIdFrom, String userIdTo) {
-        System.out.println(userIdFrom);
-        System.out.println(userIdTo);
         SocialUser from = findUserViaId(userIdFrom);
         SocialUser to = findUserViaId(userIdTo);
         log.info("Find user from {}", from);

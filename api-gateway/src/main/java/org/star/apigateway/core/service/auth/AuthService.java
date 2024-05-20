@@ -23,7 +23,6 @@ import org.star.apigateway.microservice.service.user.model.user.UserToSaveTransf
 import org.star.apigateway.microservice.service.user.client.webclient.UserServiceWebClient;
 import org.star.apigateway.web.model.jwt.TokensBundle;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 import java.util.List;
 import java.util.Optional;
@@ -36,10 +35,8 @@ public class AuthService {
     private final BCryptPasswordEncoder encoder;
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
-    //    private final UserServiceFeignClient userService;
     private final UserServiceWebClient userServiceAsyncClient;
     private final SocialServiceWebClient socialServiceWebClient;
-//    private final ErrorsAssociate associate;
 
     private static void logServiceLayerProcessed(
             final Class<? extends RuntimeException> exceptionClazz,
@@ -95,8 +92,6 @@ public class AuthService {
                 user -> {
                     log.info("Complete save user ");
                     Mono<Void> createSocialMono = socialServiceWebClient.createSocial(user);
-                    log.info("Check");
-//                    Mono<Void> createSocialMono = Mono.empty();
                     return createSocialMono
                             .onErrorMap(ForbiddenException.class, e -> {
                                 logServiceLayerProcessed(e.getClass(), this.getClass());
@@ -105,60 +100,6 @@ public class AuthService {
                             .thenReturn(new ResponseEntity<>(user, HttpStatus.CREATED));
                 }
         );
-
-
-//        Mono<Tuple2<Integer, UserViaId>> zip;
-//        Mono<Integer> v = Mono.just(5);
-//
-//        Mono<Void> createSocialMono = socialServiceWebClient.createSocial()
-//
-//        return Mono.zip(v, createUserMono).map(
-//                tuple -> {
-//                    System.out.println(tuple.getT1());
-//                    return new ResponseEntity<>(tuple.getT2(), HttpStatus.CREATED);
-//                }
-//        );
-
-
-//        return createUserMono.map(
-//                user -> {
-//                    return new ResponseEntity<>(user, HttpStatus.CREATED);
-//                }
-//        );
-//        return userServiceAsyncClient.saveUser(new UserToSaveTransfer(login, email))
-//                .onErrorMap(ForbiddenException.class, e -> {
-//                    logServiceLayerProcessed(e.getClass(), this.getClass());
-//                    return new ForbiddenException("Error in userServiceAsync");
-//                })
-//                .map(userViaId -> {
-//                    log.info("Id to save {}", userViaId.getUserId());
-//
-//                    if (userRepository.findById(userViaId.getUserId()).isPresent()) {
-//                        log.info("User via id exist {}", userViaId.getUserId());
-//                        throw new ForbiddenException();
-//                    }
-//
-//                    final String hashPassword = encoder.encrypt(password);
-//
-//                    Role role = roleRepository.findByRole(RolesEnum.USER.toString()).orElseThrow(
-//                            () -> {
-//                                log.info("Not found Role");
-//                                return new NotFoundException("Not found role");
-//                            }
-//                    );
-//
-//                    UserAuth newUserAuth = new UserAuth();
-//                    newUserAuth.setId(userViaId.getUserId());
-//                    newUserAuth.setRoles(List.of(role));
-//                    newUserAuth.setPassword(new Password(hashPassword, newUserAuth));
-//                    userRepository.save(newUserAuth);
-//                    return userViaId;
-////                    return new ResponseEntity<>(userViaId, HttpStatus.CREATED);
-//                })
-//                .onErrorMap(ForbiddenException.class, e -> {
-//                    logServiceLayerProcessed(e.getClass(), this.getClass());
-//                    return new ForbiddenException("User via this pass already exist");
-//                });
     }
 
     public Mono<ResponseEntity<TokensBundle>> login(

@@ -1,6 +1,8 @@
 server:
   port: ${easyflow.ecosystem.social-service.port}
 spring:
+  application:
+    name: social-service
   datasource:
     url: jdbc:postgresql://localhost:5432/social
     username: easyflow
@@ -40,3 +42,8 @@ easyflow:
       url: http://127.0.0.1:8105
       domain: 127.0.0.1
       port: 8105
+    task-service:
+      name: task-service
+      url: http://127.0.0.1:8110
+      domain: 127.0.0.1
+      port: 8110

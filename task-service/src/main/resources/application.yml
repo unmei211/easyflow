@@ -1,0 +1,55 @@
+server:
+  port: ${easyflow.ecosystem.task-service.port}
+spring:
+  application:
+    name: task-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/task
+    username: easyflow
+    password: easyflow
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    locations: classpath:migrations/task
+    url: jdbc:postgresql://localhost:5432/task
+    user: easyflow
+    password: easyflow
+    baseline-on-migrate: true
+    validate-on-migrate: true
+    enabled: true
+  jpa:
+    generate-ddl: off
+    database: postgresql
+    hibernate:
+      ddl-auto: validate
+  cloud:
+    openfeign:
+      client:
+        config:
+          socialClient:
+            url: ${easyflow.ecosystem.social-service.eureka-url}
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+easyflow:
+  ecosystem:
+    auth-service:
+      url: http://127.0.0.1:8095
+      domain: 127.0.0.1
+      port: 8095
+    social-service:
+      url: http://127.0.0.1:8100
+      domain: 127.0.0.1
+      port: 8100
+      eureka-url: http://social-service
+    user-service:
+      url: http://127.0.0.1:8105
+      domain: 127.0.0.1
+      port: 8105
+    task-service:
+      url: http://127.0.0.1:8110
+      domain: 127.0.0.1
+      port: 8110

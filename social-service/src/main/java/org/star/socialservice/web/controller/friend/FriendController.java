@@ -4,10 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.star.apigateway.microservice.share.error.exceptions.core.ConflictException;
 import org.star.apigateway.microservice.share.model.user.UserViaId;
 import org.star.apigateway.microservice.share.transfer.user.UserCredentials;
@@ -18,14 +15,14 @@ import org.star.socialservice.core.services.policies.PoliciesService;
 import org.star.socialservice.core.services.social.SocialService;
 
 @RestController
-@RequestMapping("/social/friend")
+@RequestMapping("/social")
 @AllArgsConstructor
 public class FriendController {
     private final FriendService friendService;
     private final SocialService socialService;
     private final PoliciesService policiesService;
 
-    @PostMapping("/request")
+    @PostMapping("/friend/request")
     public ResponseEntity<?> friendRequest(
             final UserCredentials userCredentials,
             final @NotNull @RequestBody UserViaId userTo
@@ -38,7 +35,7 @@ public class FriendController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/accept")
+    @PostMapping("/friend/accept")
     public ResponseEntity<Void> friendAccept(
             final UserCredentials userCredentials,
             final @NotNull @RequestBody UserViaId senderBody
@@ -51,5 +48,13 @@ public class FriendController {
 
         socialService.acceptFriendRequest(sender, receiver);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{userId}/friend/{friendId}/is-friend")
+    public ResponseEntity<Boolean> userIsFriend(
+            @PathVariable(name = "userId") String userId,
+            @PathVariable("friendId") String userIdToCheck
+    ) {
+        return ResponseEntity.ok(socialService.isFriend(userId, userIdToCheck));
     }
 }

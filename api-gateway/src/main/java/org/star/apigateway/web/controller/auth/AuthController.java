@@ -1,5 +1,6 @@
 package org.star.apigateway.web.controller.auth;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -28,9 +29,6 @@ import reactor.core.publisher.Mono;
 public class AuthController {
     private final AuthService authService;
     private final DataAuthService dataAuthService;
-    private final UserServiceFeignClient feignClient;
-    private final ReactiveJwtInterceptor reactiveJwtInterceptor;
-
     @PostMapping
     public Mono<ResponseEntity<UserViaId>> register(
             final @RequestBody Registration registration
@@ -52,16 +50,9 @@ public class AuthController {
     @AuthRoleRequired(anyRole = true)
     @GetMapping("/whoami")
     public ResponseEntity<?> whoami(
-            ServerWebExchange exchange
-
+            UserCredentials userCredentials
     ) {
-        UserCredentials userCredentials = reactiveJwtInterceptor.getUserCredentials(exchange);
-        if (userCredentials == null) {
-            throw new UnauthorizedException("Unauthorized");
-        }
-
         UserAuth user = dataAuthService.findById(userCredentials.getUserId());
-
         return new ResponseEntity<>(UserAuthPublic.build(user), HttpStatus.OK);
     }
 }

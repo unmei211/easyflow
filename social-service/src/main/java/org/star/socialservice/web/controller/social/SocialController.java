@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.star.apigateway.microservice.share.model.user.UserViaId;
-import org.star.socialservice.core.services.policies.PoliciesService;
 import org.star.socialservice.core.services.social.SocialService;
 
 @RestController
@@ -17,11 +16,9 @@ import org.star.socialservice.core.services.social.SocialService;
 @Slf4j
 public class SocialController {
     private final SocialService socialService;
-    private final PoliciesService policiesService;
 
     @PostMapping("/create")
     public ResponseEntity<Void> createSocial(@RequestBody UserViaId userViaId) {
-        System.out.println(userViaId.getUserId());
         socialService.createSocial(userViaId.getUserId());
         return ResponseEntity.ok().build();
     }

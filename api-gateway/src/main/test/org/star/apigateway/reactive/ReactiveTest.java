@@ -9,18 +9,11 @@ public class ReactiveTest {
     @Test
     public void test() {
         Flux<String> fluxColors = Flux.just("red", "green", "blue");
-        System.out.println("check2");
         Flux<Character> fluxChars = fluxColors.map((color) -> {
-            System.out.println(color.charAt(0));
             return color.charAt(0);
         });
         fluxChars.subscribe((character -> {
-            System.out.println(character + " sub");
         }));
-//        fluxColors.log().subscribe(value -> {
-//            System.out.println(value);
-//        });
-        System.out.println("check");
     }
 
     @Test
@@ -40,27 +33,22 @@ public class ReactiveTest {
 
         Flux.just(1)
                 .map(i -> {
-                    System.out.println("First map: " + Thread.currentThread().getName());
                     return i;
                 })
                 .subscribeOn(schedulerA)
                 .map(i -> {
-                    System.out.println("Second map: " + Thread.currentThread().getName());
                     return i;
                 })
                 .publishOn(schedulerB)
                 .map(i -> {
-                    System.out.println("Third map: " + Thread.currentThread().getName());
                     return i;
                 })
                 .subscribeOn(schedulerC)
                 .map(i -> {
-                    System.out.println("Fourth map: " + Thread.currentThread().getName());
                     return i;
                 })
                 .publishOn(schedulerA)
                 .map(i -> {
-                    System.out.println("Fifth map: " + Thread.currentThread().getName());
                     return i;
                 })
                 .blockLast();

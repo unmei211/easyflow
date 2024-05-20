@@ -45,7 +45,6 @@ public class UserCredentialsReactiveResolver implements HandlerMethodArgumentRes
             Method method = handlerMethod.getMethod();
             AuthRoleRequired annotation = method.getAnnotation(AuthRoleRequired.class);
 
-
             if (annotation == null) {
                 if (interceptor.getUserCredentials(exchange) == null) {
                     throw new ForbiddenException("Can't parse token");

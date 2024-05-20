@@ -27,10 +27,8 @@ public class UserCredentials {
             return Optional.empty();
         }
         try {
-            System.out.println(json);
             return Optional.of(mapper.readValue(json, UserCredentials.class));
         } catch (Exception e) {
-            System.out.println("ex");
             return Optional.empty();
         }
     }
