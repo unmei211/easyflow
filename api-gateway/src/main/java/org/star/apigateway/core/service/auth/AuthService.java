@@ -1,42 +1,47 @@
 package org.star.apigateway.core.service.auth;
 
-import jakarta.persistence.Tuple;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.star.apigateway.core.entity.password.Password;
 import org.star.apigateway.core.entity.roles.Role;
 import org.star.apigateway.core.entity.roles.RolesEnum;
 import org.star.apigateway.core.entity.user.UserAuth;
-import org.star.apigateway.core.repository.role.RoleRepository;
-import org.star.apigateway.core.repository.user.UserAuthRepository;
+import org.star.apigateway.core.factory.EntityFactory;
+import org.star.apigateway.core.factory.UserAuthFactory;
+import org.star.apigateway.core.repository.auth.ReactiveAuthRepository;
+import org.star.apigateway.core.repository.password.ReactivePasswordRepository;
+import org.star.apigateway.core.repository.role.ReactiveRoleRepository;
 import org.star.apigateway.core.security.encrypt.BCryptPasswordEncoder;
 import org.star.apigateway.core.service.security.JwtService;
 import org.star.apigateway.microservice.service.social.client.webclient.SocialServiceWebClient;
+import org.star.apigateway.microservice.service.user.client.webclient.UserServiceWebClient;
+import org.star.apigateway.microservice.service.user.model.user.UserToSaveTransfer;
 import org.star.apigateway.microservice.share.error.exceptions.core.NotFoundException;
 import org.star.apigateway.microservice.share.error.exceptions.security.ForbiddenException;
 import org.star.apigateway.microservice.share.model.user.UserViaId;
-import org.star.apigateway.microservice.service.user.model.user.UserToSaveTransfer;
-import org.star.apigateway.microservice.service.user.client.webclient.UserServiceWebClient;
 import org.star.apigateway.web.model.jwt.TokensBundle;
+import org.star.apigateway.web.model.user.UserViaRoles;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AuthService {
-    private final UserAuthRepository userRepository;
+    private final EntityFactory<UserAuth.UserAuthBuilder> userFactory;
+    private final EntityFactory<Password.PasswordBuilder> passwordFactory;
+    //    private final UserAuthRepository userRepository;
     private final BCryptPasswordEncoder encoder;
-    private final RoleRepository roleRepository;
+    private final ReactiveRoleRepository roleRepository;
     private final JwtService jwtService;
     private final UserServiceWebClient userServiceAsyncClient;
     private final SocialServiceWebClient socialServiceWebClient;
+    private final ReactiveAuthRepository authRepository;
+    private final ReactivePasswordRepository passwordRepository;
 
     private static void logServiceLayerProcessed(
             final Class<? extends RuntimeException> exceptionClazz,
@@ -49,101 +54,129 @@ public class AuthService {
         );
     }
 
-    public Mono<ResponseEntity<UserViaId>> register(
+    public Mono<UserViaId> register(
             final String login,
             final String email,
             final String password
     ) {
-        Mono<UserViaId> createUserMono = userServiceAsyncClient.saveUser(new UserToSaveTransfer(login, email))
+        return userServiceAsyncClient.saveUser(new UserToSaveTransfer(
+                        login,
+                        email
+                ))
                 .onErrorMap(ForbiddenException.class, e -> {
                     logServiceLayerProcessed(e.getClass(), this.getClass());
-                    return new ForbiddenException("Error in userServiceAsync");
+                    return new ForbiddenException("Can't save user in user service");
                 })
-                .map(userViaId -> {
-                    log.info("Id to save {}", userViaId.getUserId());
+                .flatMap(user -> {
+                    Mono<Void> authSaveMono = authRepository.save(userFactory.toNew(user.getUserId()).build()).then();
+                    Mono<Void> passwordSaveMono = passwordRepository.save(
+                            passwordFactory.toNew(user.getUserId()).password(encoder.encrypt(password)).build()
+                    ).then();
+                    Mono<Void> socialInitialMono = socialServiceWebClient.createSocial(user);
+                    Mono<Void> bindWithRoleMono = roleRepository.bindNewUserWith(user.getUserId(), RolesEnum.USER.toString());
 
-                    if (userRepository.findById(userViaId.getUserId()).isPresent()) {
-                        log.info("User via id exist {}", userViaId.getUserId());
-                        throw new ForbiddenException();
-                    }
-
-                    final String hashPassword = encoder.encrypt(password);
-
-                    Role role = roleRepository.findByRole(RolesEnum.USER.toString()).orElseThrow(
-                            () -> {
-                                log.info("Not found Role");
-                                return new NotFoundException("Not found role");
-                            }
+                    Flux<Void> transactions = Flux.concat(
+                            authSaveMono,
+                            passwordSaveMono,
+                            socialInitialMono,
+                            bindWithRoleMono
                     );
 
-                    UserAuth newUserAuth = new UserAuth();
-                    newUserAuth.setId(userViaId.getUserId());
-                    newUserAuth.setRoles(List.of(role));
-                    newUserAuth.setPassword(new Password(hashPassword, newUserAuth));
-                    userRepository.save(newUserAuth);
-                    log.info("User is saved");
-                    return userViaId;
-                })
-                .onErrorMap(ForbiddenException.class, e -> {
-                    logServiceLayerProcessed(e.getClass(), this.getClass());
-                    return new ForbiddenException("User via this pass already exist");
+                    return transactions.then(Mono.just(user));
                 });
-        return createUserMono.flatMap(
-                user -> {
-                    log.info("Complete save user ");
-                    Mono<Void> createSocialMono = socialServiceWebClient.createSocial(user);
-                    return createSocialMono
-                            .onErrorMap(ForbiddenException.class, e -> {
-                                logServiceLayerProcessed(e.getClass(), this.getClass());
-                                return new ForbiddenException("Error in userServiceAsync");
-                            })
-                            .thenReturn(new ResponseEntity<>(user, HttpStatus.CREATED));
-                }
-        );
     }
 
-    public Mono<ResponseEntity<TokensBundle>> login(
+    public Mono<TokensBundle> login(
             final String login,
             final String password
     ) {
         return userServiceAsyncClient.findUserByLogin(login)
-                .onErrorMap(
-                        NotFoundException.class,
-                        e -> {
-                            logServiceLayerProcessed(e.getClass(), this.getClass());
-                            return new ForbiddenException("Didn't find a user via login");
-                        }
-                )
-                .map(userViaInfo -> {
-                    log.info("Get userViaInfo {}", userViaInfo.toString());
-
-                    Optional<UserAuth> user = userRepository.findById(userViaInfo.getId());
-                    if (user.isEmpty()) {
-                        log.info("User not found");
-                        throw new NotFoundException("User not found");
+                .flatMap(userViaInfo -> authRepository
+                        .findById(userViaInfo.getId())
+                        .switchIfEmpty(Mono.error(new NotFoundException("User via id not found in auth"))))
+                .flatMap(userAuth -> {
+                    if (!userAuth.getEnabled()) {
+                        return Mono.error(new ForbiddenException("User not authorize"));
                     }
-                    if (!user.get().getEnabled()) {
-                        log.info("User is disabled");
-                        throw new ForbiddenException("User not enabled");
-                    }
-
-                    if (!encoder.matches(password, user.get().getPassword().getValue())) {
-                        log.info("Password not matches");
-                        throw new ForbiddenException("Password not matches");
-                    }
-
-
-                    TokensBundle bundle = new TokensBundle();
-                    String accessToken = jwtService.createAccessToken(user.get());
-                    log.info("try bundle token access");
-                    bundle.setAccessToken(jwtService.createAccessToken(user.get()));
-                    log.info("bundled token access");
-                    bundle.setRefreshToken(jwtService.upsertRefreshToken(user.get()));
-
-                    return ResponseEntity.ok(bundle);
-                })
-                .onErrorMap(throwable -> {
-                    return throwable;
+                    return passwordRepository.findById(userAuth.getId())
+                            .flatMap(passFromDb -> {
+                                if (!encoder.matches(password, passFromDb.getPassword())) {
+                                    return Mono.error(new ForbiddenException("Wrong password"));
+                                }
+                                return Mono.just(userAuth);
+                            })
+                            .flatMap(userAuthInner -> roleRepository.findUserRoles(userAuthInner.getId())
+                                    .collectList()
+                                    .flatMap(roles -> {
+                                        UserViaRoles userViaRoles = new UserViaRoles(
+                                                userAuthInner.getId(),
+                                                roles.stream().map(Role::getRole).toList()
+                                        );
+                                        String accessToken = jwtService.createAccessToken(userViaRoles);
+                                        Mono<String> refreshToken = jwtService.upsertRefreshToken(userViaRoles);
+                                        return refreshToken.map(s -> new TokensBundle(accessToken, s));
+                                    }));
                 });
+//                .flatMap(passFromDb -> {
+//                    if(!encoder.matches(password, passFromDb.getPassword())) {
+//                        return Mono.error(new ForbiddenException("Wrong password"));
+//                    }
+//                    roleRepository.findUserRoles()
+//                    jwtService.createAccessToken()
+//                })
     }
+
+//
+//    public Mono<ResponseEntity<TokensBundle>> login(
+//            final String login,
+//            final String password
+//    ) {
+//        return userServiceAsyncClient.findUserByLogin(login)
+//                .onErrorMap(
+//                        NotFoundException.class,
+//                        e -> {
+//                            logServiceLayerProcessed(e.getClass(), this.getClass());
+//                            return new ForbiddenException("Didn't find a user via login");
+//                        }
+//                )
+//                .map(userViaInfo -> {
+//                    log.info("Get userViaInfo {}", userViaInfo.toString());
+//
+//                    Optional<UserAuth> user = userRepository.findById(userViaInfo.getId());
+//                    if (user.isEmpty()) {
+//                        log.info("User not found");
+//                        throw new NotFoundException("User not found");
+//                    }
+//                    if (!user.get().getEnabled()) {
+//                        log.info("User is disabled");
+//                        throw new ForbiddenException("User not enabled");
+//                    }
+//
+//                    if (!encoder.matches(password, user.get().getPassword().getValue())) {
+//                        log.info("Password not matches");
+//                        throw new ForbiddenException("Password not matches");
+//                    }
+//
+//
+//                    TokensBundle bundle = new TokensBundle();
+//                    String accessToken = jwtService.createAccessToken(user.get());
+//                    log.info("try bundle token access");
+//                    bundle.setAccessToken(jwtService.createAccessToken(user.get()));
+//                    log.info("bundled token access");
+//                    bundle.setRefreshToken(jwtService.upsertRefreshToken(user.get()));
+//
+//                    return ResponseEntity.ok(bundle);
+//                })
+//                .onErrorMap(throwable -> {
+//                    return throwable;
+//                });
+//    }
+//
+//    public UserAuth findById(final String userId) {
+//        return userRepository.findById(userId).orElseThrow(() -> {
+//                    log.error("not found user {}", userId);
+//                    return new NotFoundException("User with id " + userId + " not found");
+//                }
+//        );
+//    }
 }

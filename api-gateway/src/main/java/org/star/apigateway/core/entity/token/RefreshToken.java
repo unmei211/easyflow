@@ -1,27 +1,40 @@
 package org.star.apigateway.core.entity.token;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.star.apigateway.core.entity.user.UserAuth;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "refresh_tokens")
-public class RefreshToken {
+public class RefreshToken implements Persistable<String> {
+    @Column
+    @NotNull
+    private String userId;
+
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    @Column("refresh_token")
+    @NotNull
+    private String refreshToken;
 
-    @OneToOne
-    @JoinColumn(unique = true, nullable = false)
-    private UserAuth user;
+    @Transient
+    @Getter(AccessLevel.NONE)
+    private Boolean isNew = false;
 
-    @Column(unique = true, name = "refresh_token")
-    private String token;
+    @Override
+    public String getId() {
+        return refreshToken;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
 }

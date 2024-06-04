@@ -1,16 +1,25 @@
 server:
   port: "${easyflow.ecosystem.auth-service.port}"
   forward-headers-strategy: framework
+#eureka:
+#  client:
+#    enabled: false
 spring:
+
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/gateway
+    username: easyflow
+    password: easyflow
+
   application:
     name: gateway
   main:
     web-application-type: reactive
-  datasource:
-    url: jdbc:postgresql://localhost:5432/gateway
-    username: easyflow
-    password: easyflow
-    driver-class-name: org.postgresql.Driver
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/gateway
+#    username: easyflow
+#    password: easyflow
+#    driver-class-name: org.postgresql.Driver
   flyway:
     locations: classpath:migrations/gateway
     url: jdbc:postgresql://localhost:5432/gateway
@@ -57,11 +66,11 @@ spring:
             url: "${easyflow.ecosystem.auth-service.url}"
           taskClient:
             url: "${easyflow.ecosystem.task-service.url}"
-  jpa:
-    generate-ddl: off
-    database: postgresql
-    hibernate:
-      ddl-auto: validate
+#  jpa:
+#    generate-ddl: off
+#    database: postgresql
+#    hibernate:
+#      ddl-auto: validate
 jwt:
   issuer: 'unmei.vs@gmail.com'
   signingKey: 'talspoc120nxjsapqke1d77'

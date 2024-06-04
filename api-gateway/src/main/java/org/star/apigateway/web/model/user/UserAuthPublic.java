@@ -8,13 +8,13 @@ import java.util.List;
 
 @Getter
 public class UserAuthPublic {
-    private final String id;
+//    private final String id;
     private final Boolean enabled;
-    private final List<String> roles;
+//    private final List<String> roles;
 
     public UserAuthPublic(final UserAuth user) {
-        this.roles = user.getPresentRoles();
-        this.id = user.getId();
+//        this.roles = user.getPresentRoles();
+//        this.id = user.getId();
         this.enabled = user.getEnabled();
     }
 

@@ -1,28 +1,26 @@
 package org.star.apigateway.core.entity.roles;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 import org.star.apigateway.core.entity.user.UserAuth;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
+@Table("role")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 public class Role {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-
-    @Column(unique = true, nullable = false)
+    @Column
+    @NotNull
     private String role;
-
-    @ManyToMany(mappedBy = "roles")
-    private List<UserAuth> users = new ArrayList<>();
 }

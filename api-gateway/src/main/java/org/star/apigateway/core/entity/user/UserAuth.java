@@ -1,7 +1,15 @@
 package org.star.apigateway.core.entity.user;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.springframework.aot.generate.Generated;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Persistent;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 import org.star.apigateway.core.entity.password.Password;
 import org.star.apigateway.core.entity.roles.Role;
 import org.star.apigateway.core.entity.token.RefreshToken;
@@ -9,39 +17,30 @@ import org.star.apigateway.core.entity.token.RefreshToken;
 import java.util.*;
 
 @Table(name = "users_auth")
-@Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
-public class UserAuth {
+@Data
+@Builder
+public class UserAuth implements Persistable<String> {
     @Id
+    @Column("id")
     private String id;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private Password password;
+    @Transient
+    private boolean isNew = false;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private RefreshToken refreshToken;
+    @Override
+    @Transient
+    public boolean isNew() {
+        return isNew;
+    }
 
-    @Column(nullable = false)
+    @Column
+//    @NotNull
     private Boolean enabled = true;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "role_id"})
-    )
-    private List<Role> roles = new ArrayList<>();
-
-    public List<String> getPresentRoles() {
-        List<String> presentRoles = new ArrayList<>();
-        List<Role> userRoles = this.getRoles();
-        for (Role role : userRoles) {
-            presentRoles.add(role.getRole());
-        }
-        return presentRoles;
-    }
+//    public UserAuth(final String id) {
+//        this.enabled = true;
+//        this.id = "1";
+//    }
 }

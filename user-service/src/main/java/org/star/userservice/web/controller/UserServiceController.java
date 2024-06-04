@@ -1,8 +1,6 @@
 package org.star.userservice.web.controller;
 
 import com.netflix.discovery.EurekaClient;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,14 +19,11 @@ import org.star.userservice.core.services.UserService;
 @RequestMapping("/user")
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "UserServiceController")
 public class UserServiceController {
     private final EurekaClient client;
     private final UserService userService;
     private final TaskServiceFeignClient taskClient;
 
-    @Operation(summary = "User registration",
-            description = "Try to register")
     @PostMapping("/create")
     public ResponseEntity<UserViaId> createUser(@RequestBody UserToSaveTransfer userToSave) {
         UserOfUserService serviceUser = userService.saveUser(userToSave.getEmail(), userToSave.getLogin());
@@ -49,10 +44,13 @@ public class UserServiceController {
         return ResponseEntity.ok(user);
     }
 
+
+
     @GetMapping
     public ResponseEntity<?> eurekaCheck() {
-        client.getAllKnownRegions();
-        taskClient.getCheck();
-        return ResponseEntity.ok(taskClient.getCheck());
+//        client.getAllKnownRegions();
+//        taskClient.getCheck();
+        System.out.println("wtf");
+        return ResponseEntity.ok("URA");
     }
 }

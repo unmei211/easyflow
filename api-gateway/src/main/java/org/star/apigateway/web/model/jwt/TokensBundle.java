@@ -19,6 +19,6 @@ public class TokensBundle {
             final RefreshToken refreshToken
     ) {
         this.accessToken = accessToken.getAccessToken();
-        this.refreshToken = refreshToken.getToken();
+        this.refreshToken = refreshToken.getRefreshToken();
     }
 }

@@ -21,4 +21,7 @@ public interface UserServiceFeignClient extends UserServiceApi {
 
     @GetMapping("/user/{login}")
     UserViaInfo findUserByLogin(@PathVariable(name = "login") String login);
+
+    @GetMapping("/user")
+    String check();
 }

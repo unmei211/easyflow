@@ -7,29 +7,31 @@ import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.stereotype.Component;
 import org.star.apigateway.core.entity.roles.RolesEnum;
-import org.star.apigateway.core.security.jwt.ReactiveJwtInterceptor;
+//import org.star.apigateway.core.security.jwt.ReactiveJwtInterceptor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class AuthorityGatewayFilterFactory extends AbstractGatewayFilterFactory<AuthorityGatewayFilterFactory.Config> {
-    private final ReactiveJwtInterceptor interceptor;
+//    private final ReactiveJwtInterceptor interceptor;
 
     public AuthorityGatewayFilterFactory(
-            final @Qualifier("ReactiveInterceptor") ReactiveJwtInterceptor interceptor
+//            final @Qualifier("ReactiveInterceptor") ReactiveJwtInterceptor interceptor
     ) {
         super(Config.class);
-        this.interceptor = interceptor;
+//        this.interceptor = interceptor;
     }
+
 
     @Override
     public GatewayFilter apply(Config config) {
+
         return ((exchange, chain) -> {
-            if (interceptor.preHandle(exchange, config)) {
+//            if (interceptor.preHandle(exchange, config)) {
                 return chain.filter(exchange);
-            }
-            return exchange.getResponse().setComplete();
+//            }
+//            return exchange.getResponse().setComplete();
         });
     }
 

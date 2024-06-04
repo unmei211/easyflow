@@ -1,33 +1,46 @@
 package org.star.apigateway.core.entity.password;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 //import org.apache.catalina.User;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.MappedCollection;
+import org.springframework.data.relational.core.mapping.Table;
 import org.star.apigateway.core.entity.user.UserAuth;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
-@Entity
+@Data
+@Builder
 @Table(name = "user_password")
-public class Password {
+public class Password implements Persistable<String> {
+    @Column
+    @NotNull
+    private String password;
+
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-
-    @Column(nullable = false, name = "password")
-    private String value;
-
-    @OneToOne
-    @JoinColumn(unique = true, nullable = false, name = "user_id")
-    private UserAuth user;
+    @NotNull
+    private String userId;
 
     public Password(final String hashPassword, final UserAuth user) {
-        this.user = user;
-        this.value = hashPassword;
+//        this.userId = user.getId();
+        this.password = hashPassword;
+    }
+
+    @Override
+    public String getId() {
+        return userId;
+    }
+
+    @Transient
+    private Boolean isNew = true;
+
+    @Override
+    public boolean isNew() {
+        return isNew;
     }
 }

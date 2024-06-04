@@ -1,17 +1,17 @@
-package org.star.apigateway.microservice.share.model.user;
-
+package org.star.apigateway.web.model.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserViaInfo {
+public class UserViaRoles {
     private String id;
-    private String login;
-    private String email;
+    private List<String> roles;
 }
